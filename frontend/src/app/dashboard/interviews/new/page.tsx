@@ -51,7 +51,7 @@ const INTERVIEW_TYPES: { value: InterviewType; label: string; description: strin
   { value: 'final', label: 'Final Round', description: 'Final decision interview' },
 ];
 
-const interviewSchema = z.object({
+const _interviewSchema = z.object({
   application: z.number(),
   interview_type: z.string().min(1, 'Interview type is required'),
   scheduled_date: z.string().min(1, 'Date is required'),
@@ -66,7 +66,7 @@ const interviewSchema = z.object({
   set_reminder: z.boolean().default(true),
 });
 
-type InterviewFormData = z.infer<typeof interviewSchema>;
+type InterviewFormData = z.infer<typeof _interviewSchema>;
 
 function NewInterviewFormContent() {
   const router = useRouter();

@@ -13,16 +13,21 @@ import {
   Loader2,
   File,
   AlertCircle,
+  Sparkles,
+  Zap,
+  Target,
 } from 'lucide-react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { GradientButton, AnimatedNumber, EmptyState as AnimatedEmptyState } from '@/components/ui/animated-elements';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -71,9 +76,9 @@ function formatFileSize(bytes: number): string {
 function getFileIcon(fileName: string) {
   const ext = fileName.split('.').pop()?.toLowerCase();
   if (ext === 'pdf') {
-    return <FileText className="h-8 w-8 text-red-500" />;
+    return <FileText className="h-6 w-6 text-white" />;
   }
-  return <File className="h-8 w-8 text-blue-500" />;
+  return <File className="h-6 w-6 text-white" />;
 }
 
 function ResumeCard({ 
@@ -95,11 +100,11 @@ function ResumeCard({
 
   return (
     <>
-      <Card className={`transition-all hover:shadow-md ${resume.is_default ? 'ring-2 ring-primary' : ''}`}>
+      <AnimatedCard variant="interactive" hoverEffect="lift" className={`${resume.is_default ? 'ring-2 ring-primary' : ''}`}>
         <CardContent className="p-4">
           <div className="flex items-start gap-4">
             {/* File Icon */}
-            <div className="p-3 rounded-lg bg-muted">
+            <div className={`p-3 rounded-xl shadow-md ${resume.original_filename.endsWith('.pdf') ? 'bg-gradient-to-br from-red-500 to-rose-600' : 'bg-gradient-to-br from-blue-500 to-indigo-600'}`}>
               {getFileIcon(resume.original_filename)}
             </div>
 
@@ -108,7 +113,7 @@ function ResumeCard({
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="font-semibold truncate">{resume.name}</h3>
                 {resume.is_default && (
-                  <Badge className="bg-primary/10 text-primary hover:bg-primary/20">
+                  <Badge className="bg-gradient-to-r from-primary to-purple-600 text-white hover:from-primary/90 hover:to-purple-600/90">
                     <Star className="mr-1 h-3 w-3 fill-current" />
                     Default
                   </Badge>
@@ -176,7 +181,7 @@ function ResumeCard({
             </DropdownMenu>
           </div>
         </CardContent>
-      </Card>
+      </AnimatedCard>
 
       <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
         <AlertDialogContent>
@@ -281,15 +286,20 @@ function UploadResumeDialog({ disabled }: { disabled?: boolean }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button disabled={disabled}>
+        <GradientButton disabled={disabled}>
           <Upload className="mr-2 h-4 w-4" />
           Upload Resume
-        </Button>
+        </GradientButton>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
-            <DialogTitle>Upload Resume</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="p-2 bg-gradient-to-br from-primary to-purple-600 rounded-lg">
+                <Upload className="h-4 w-4 text-white" />
+              </div>
+              Upload Resume
+            </DialogTitle>
             <DialogDescription>
               Upload a PDF or Word document. Max file size: 5MB.
             </DialogDescription>
@@ -383,7 +393,7 @@ function UploadResumeDialog({ disabled }: { disabled?: boolean }) {
             <Button type="button" variant="outline" onClick={() => setOpen(false)}>
               Cancel
             </Button>
-            <Button type="submit" disabled={!file || uploadResume.isPending}>
+            <GradientButton type="submit" disabled={!file || uploadResume.isPending}>
               {uploadResume.isPending ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -395,7 +405,7 @@ function UploadResumeDialog({ disabled }: { disabled?: boolean }) {
                   Upload
                 </>
               )}
-            </Button>
+            </GradientButton>
           </DialogFooter>
         </form>
       </DialogContent>
@@ -417,33 +427,72 @@ export default function ResumesPage() {
 
   return (
     <div className="p-6 space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Resumes</h1>
-          <p className="text-muted-foreground">
-            Manage your resume versions for different applications
-          </p>
+      {/* Header with Gradient */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-rose-600 via-pink-600 to-fuchsia-600 p-8">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-pink-400/20 rounded-full blur-xl" />
+        
+        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+          <div className="animate-fade-in-up">
+            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                <FileText className="h-7 w-7" />
+              </div>
+              Resumes
+            </h1>
+            <p className="text-white/80 mt-2 max-w-md">
+              Manage your resume versions for different applications
+            </p>
+          </div>
+          <div className="animate-fade-in-up stagger-2">
+            <UploadResumeDialog disabled={!canUploadMore} />
+          </div>
         </div>
-        <UploadResumeDialog disabled={!canUploadMore} />
+
+        <div className="relative grid grid-cols-2 sm:grid-cols-3 gap-4 mt-6 animate-fade-in-up stagger-3">
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+            <p className="text-white/70 text-sm">Total Resumes</p>
+            <p className="text-2xl font-bold text-white">
+              <AnimatedNumber value={resumeList.length} />
+            </p>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+            <p className="text-white/70 text-sm">Default Set</p>
+            <p className="text-2xl font-bold text-white">
+              {resumeList.some(r => r.is_default) ? 'Yes' : 'No'}
+            </p>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20 col-span-2 sm:col-span-1">
+            <p className="text-white/70 text-sm">Total Uses</p>
+            <p className="text-2xl font-bold text-white">
+              <AnimatedNumber value={resumeList.reduce((sum, r) => sum + r.usage_count, 0)} />
+            </p>
+          </div>
+        </div>
       </div>
 
       {/* Limit Warning */}
       {!isPro && resumeList.length >= FREE_RESUME_LIMIT && (
-        <Card className="border-yellow-300 bg-yellow-50">
+        <AnimatedCard variant="default" className="border-yellow-300 bg-yellow-50">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
-              <AlertCircle className="h-5 w-5 text-yellow-600" />
+              <div className="p-2 bg-gradient-to-br from-yellow-500 to-amber-600 rounded-xl">
+                <AlertCircle className="h-5 w-5 text-white" />
+              </div>
               <div className="flex-1">
                 <p className="font-medium text-yellow-800">Resume limit reached</p>
                 <p className="text-sm text-yellow-700">
                   Free accounts can store up to {FREE_RESUME_LIMIT} resumes. Upgrade to Pro for unlimited storage.
                 </p>
               </div>
-              <Button size="sm">Upgrade to Pro</Button>
+              <GradientButton size="sm">
+                <Sparkles className="mr-2 h-4 w-4" />
+                Upgrade to Pro
+              </GradientButton>
             </div>
           </CardContent>
-        </Card>
+        </AnimatedCard>
       )}
 
       {/* Usage Info */}
@@ -473,46 +522,62 @@ export default function ResumesPage() {
           ))}
         </div>
       ) : (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h3 className="text-lg font-semibold mb-2">No resumes yet</h3>
-            <p className="text-muted-foreground mb-4">
-              Upload your first resume to start applying for jobs
-            </p>
-            <UploadResumeDialog />
-          </CardContent>
-        </Card>
+        <AnimatedEmptyState
+          icon={<FileText className="h-12 w-12" />}
+          title="No resumes yet"
+          description="Upload your first resume to start applying for jobs"
+          action={<UploadResumeDialog />}
+        />
       )}
 
       {/* Tips Section */}
-      <Card>
+      <AnimatedCard variant="default" className="animate-fade-in-up">
         <CardHeader>
-          <CardTitle className="text-lg">Resume Tips</CardTitle>
+          <CardTitle className="flex items-center gap-2 text-lg">
+            <div className="p-2 bg-gradient-to-br from-primary to-purple-600 rounded-lg">
+              <Zap className="h-4 w-4 text-white" />
+            </div>
+            Resume Tips
+          </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="p-4 rounded-lg bg-blue-50 border border-blue-200">
-              <h4 className="font-medium text-blue-900 mb-1">Tailor for Each Role</h4>
+            <div className="p-5 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 border border-blue-200 hover:shadow-md transition-all">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 bg-blue-500 rounded-lg">
+                  <Target className="h-4 w-4 text-white" />
+                </div>
+                <h4 className="font-medium text-blue-900">Tailor for Each Role</h4>
+              </div>
               <p className="text-sm text-blue-700">
                 Create versions targeting specific job types or industries
               </p>
             </div>
-            <div className="p-4 rounded-lg bg-green-50 border border-green-200">
-              <h4 className="font-medium text-green-900 mb-1">Keep It Updated</h4>
+            <div className="p-5 rounded-xl bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 hover:shadow-md transition-all">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 bg-green-500 rounded-lg">
+                  <Sparkles className="h-4 w-4 text-white" />
+                </div>
+                <h4 className="font-medium text-green-900">Keep It Updated</h4>
+              </div>
               <p className="text-sm text-green-700">
                 Regularly update with new skills and achievements
               </p>
             </div>
-            <div className="p-4 rounded-lg bg-purple-50 border border-purple-200">
-              <h4 className="font-medium text-purple-900 mb-1">Use Keywords</h4>
+            <div className="p-5 rounded-xl bg-gradient-to-br from-purple-50 to-violet-50 border border-purple-200 hover:shadow-md transition-all">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-1.5 bg-purple-500 rounded-lg">
+                  <Zap className="h-4 w-4 text-white" />
+                </div>
+                <h4 className="font-medium text-purple-900">Use Keywords</h4>
+              </div>
               <p className="text-sm text-purple-700">
                 Include relevant keywords from job descriptions
               </p>
             </div>
           </div>
         </CardContent>
-      </Card>
+      </AnimatedCard>
     </div>
   );
 }

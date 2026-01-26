@@ -15,11 +15,8 @@ import {
 import type {
   Meeting,
   ActionItem,
-  Note,
-  Activity,
   MeetingTemplate,
   NotificationIntegration,
-  NotificationLog,
   CalendarConnection,
   Workspace,
   WorkspaceMember,

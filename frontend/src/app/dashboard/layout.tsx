@@ -16,7 +16,13 @@ import {
   FileText,
   Crown,
   ChevronDown,
-  User
+  User,
+  Users,
+  Target,
+  Trophy,
+  TrendingUp,
+  Shield,
+  Plug,
 } from 'lucide-react';
 import { useState } from 'react';
 
@@ -42,6 +48,12 @@ const navigation = [
   { name: 'Reminders', href: '/dashboard/reminders', icon: Bell },
   { name: 'Analytics', href: '/dashboard/analytics', icon: BarChart3 },
   { name: 'Resumes', href: '/dashboard/resumes', icon: FileText },
+  { name: 'Networking', href: '/dashboard/networking', icon: Users },
+  { name: 'Career', href: '/dashboard/career', icon: Target },
+  { name: 'Gamification', href: '/dashboard/gamification', icon: Trophy },
+  { name: 'Market Intel', href: '/dashboard/market-intel', icon: TrendingUp },
+  { name: 'Integrations', href: '/dashboard/integrations', icon: Plug },
+  { name: 'Privacy', href: '/dashboard/privacy', icon: Shield },
 ];
 
 export default function DashboardLayout({

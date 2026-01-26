@@ -151,7 +151,7 @@ export default function ApplicationDetailPage({ params }: { params: Promise<{ id
   const handleGenerateFollowUp = () => {
     if (!application) return;
     generateFollowUp.mutate({ applicationId: application.id }, {
-      onSuccess: (data) => {
+      onSuccess: (_data) => {
         toast.success('Follow-up email generated');
         // Could open a modal with the email content
       },

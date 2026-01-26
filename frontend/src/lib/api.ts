@@ -666,12 +666,12 @@ export const aiApi = {
 // MEETINGS API (Placeholder - may need backend implementation)
 // ============================================================================
 export const meetingsApi = {
-  list: async (params?: unknown): Promise<any> => {
+  list: async (_params?: unknown): Promise<any> => {
     // Placeholder - implement when backend is ready
     throw new Error('Meetings API not implemented');
   },
 
-  get: async (id: string): Promise<any> => {
+  get: async (_id: string): Promise<any> => {
     throw new Error('Meetings API not implemented');
   },
 
@@ -679,27 +679,27 @@ export const meetingsApi = {
     throw new Error('Meetings API not implemented');
   },
 
-  getAnalytics: async (days: number): Promise<any> => {
+  getAnalytics: async (_days: number): Promise<any> => {
     throw new Error('Meetings API not implemented');
   },
 
-  create: async (formData: FormData): Promise<any> => {
+  create: async (_formData: FormData): Promise<any> => {
     throw new Error('Meetings API not implemented');
   },
 
-  update: async (id: string, data: unknown): Promise<any> => {
+  update: async (_id: string, _data: any): Promise<any> => {
     throw new Error('Meetings API not implemented');
   },
 
-  delete: async (id: string): Promise<void> => {
+  delete: async (_id: string): Promise<void> => {
     throw new Error('Meetings API not implemented');
   },
 
-  share: async (id: string): Promise<any> => {
+  share: async (_id: string): Promise<any> => {
     throw new Error('Meetings API not implemented');
   },
 
-  toggleFavorite: async (id: string): Promise<any> => {
+  toggleFavorite: async (_id: string): Promise<any> => {
     throw new Error('Meetings API not implemented');
   },
 
@@ -712,27 +712,27 @@ export const meetingsApi = {
 // ACTION ITEMS API (Placeholder)
 // ============================================================================
 export const actionItemsApi = {
-  list: async (params?: unknown): Promise<any> => {
+  list: async (_params?: any): Promise<any> => {
     throw new Error('Action Items API not implemented');
   },
 
-  get: async (id: string): Promise<any> => {
+  get: async (_id: string): Promise<any> => {
     throw new Error('Action Items API not implemented');
   },
 
-  create: async (data: unknown): Promise<any> => {
+  create: async (_data: Partial<any>): Promise<any> => {
     throw new Error('Action Items API not implemented');
   },
 
-  update: async (id: string, data: unknown): Promise<any> => {
+  update: async (_id: string, _data: any): Promise<any> => {
     throw new Error('Action Items API not implemented');
   },
 
-  complete: async (id: string): Promise<any> => {
+  complete: async (_id: string): Promise<any> => {
     throw new Error('Action Items API not implemented');
   },
 
-  delete: async (id: string): Promise<void> => {
+  delete: async (_id: string): Promise<void> => {
     throw new Error('Action Items API not implemented');
   },
 };
@@ -741,15 +741,15 @@ export const actionItemsApi = {
 // NOTES API (Placeholder)
 // ============================================================================
 export const notesApi = {
-  list: async (meetingId?: string): Promise<any> => {
+  list: async (_meetingId?: string): Promise<any> => {
     throw new Error('Notes API not implemented');
   },
 
-  create: async (data: unknown): Promise<any> => {
+  create: async (_data: any): Promise<any> => {
     throw new Error('Notes API not implemented');
   },
 
-  delete: async (id: string): Promise<void> => {
+  delete: async (_id: string): Promise<void> => {
     throw new Error('Notes API not implemented');
   },
 };
@@ -758,11 +758,11 @@ export const notesApi = {
 // ACTIVITIES API (Placeholder)
 // ============================================================================
 export const activitiesApi = {
-  list: async (limit?: number): Promise<any> => {
+  list: async (_limit?: number): Promise<any> => {
     throw new Error('Activities API not implemented');
   },
 
-  get: async (id: string): Promise<any> => {
+  get: async (_id: string): Promise<any> => {
     throw new Error('Activities API not implemented');
   },
 };
@@ -775,19 +775,19 @@ export const templatesApi = {
     throw new Error('Templates API not implemented');
   },
 
-  get: async (id: string): Promise<any> => {
+  get: async (_id: string): Promise<any> => {
     throw new Error('Templates API not implemented');
   },
 
-  create: async (data: unknown): Promise<any> => {
+  create: async (_data: Partial<any>): Promise<any> => {
     throw new Error('Templates API not implemented');
   },
 
-  update: async (id: string, data: unknown): Promise<any> => {
+  update: async (_id: string, _data: any): Promise<any> => {
     throw new Error('Templates API not implemented');
   },
 
-  delete: async (id: string): Promise<void> => {
+  delete: async (_id: string): Promise<void> => {
     throw new Error('Templates API not implemented');
   },
 };
@@ -800,23 +800,23 @@ export const integrationsApi = {
     throw new Error('Integrations API not implemented');
   },
 
-  get: async (id: string): Promise<any> => {
+  get: async (_id: string): Promise<any> => {
     throw new Error('Integrations API not implemented');
   },
 
-  create: async (data: unknown): Promise<any> => {
+  create: async (_data: Partial<any>): Promise<any> => {
     throw new Error('Integrations API not implemented');
   },
 
-  update: async (id: string, data: unknown): Promise<any> => {
+  update: async (_id: string, _data: any): Promise<any> => {
     throw new Error('Integrations API not implemented');
   },
 
-  delete: async (id: string): Promise<void> => {
+  delete: async (_id: string): Promise<void> => {
     throw new Error('Integrations API not implemented');
   },
 
-  test: async (id: string, testMessage?: string): Promise<any> => {
+  test: async (_id: string, _testMessage?: string): Promise<any> => {
     throw new Error('Integrations API not implemented');
   },
 };
@@ -838,23 +838,23 @@ export const calendarApi = {
     throw new Error('Calendar API not implemented');
   },
 
-  getConnection: async (id: string): Promise<any> => {
+  getConnection: async (_id: string): Promise<any> => {
     throw new Error('Calendar API not implemented');
   },
 
-  createConnection: async (data: unknown): Promise<any> => {
+  createConnection: async (_data: Partial<any>): Promise<any> => {
     throw new Error('Calendar API not implemented');
   },
 
-  updateConnection: async (id: string, data: unknown): Promise<any> => {
+  updateConnection: async (_id: string, _data: any): Promise<any> => {
     throw new Error('Calendar API not implemented');
   },
 
-  deleteConnection: async (id: string): Promise<void> => {
+  deleteConnection: async (_id: string): Promise<void> => {
     throw new Error('Calendar API not implemented');
   },
 
-  syncConnection: async (id: string): Promise<any> => {
+  syncConnection: async (_id: string): Promise<any> => {
     throw new Error('Calendar API not implemented');
   },
 
@@ -875,19 +875,19 @@ export const workspacesApi = {
     throw new Error('Workspaces API not implemented');
   },
 
-  get: async (id: string): Promise<any> => {
+  get: async (_id: string): Promise<any> => {
     throw new Error('Workspaces API not implemented');
   },
 
-  create: async (data: unknown): Promise<any> => {
+  create: async (_data: Partial<any>): Promise<any> => {
     throw new Error('Workspaces API not implemented');
   },
 
-  update: async (id: string, data: unknown): Promise<any> => {
+  update: async (_id: string, _data: any): Promise<any> => {
     throw new Error('Workspaces API not implemented');
   },
 
-  delete: async (id: string): Promise<void> => {
+  delete: async (_id: string): Promise<void> => {
     throw new Error('Workspaces API not implemented');
   },
 
@@ -895,11 +895,11 @@ export const workspacesApi = {
     throw new Error('Workspaces API not implemented');
   },
 
-  updateMember: async (id: string, data: unknown): Promise<any> => {
+  updateMember: async (_id: string, _data: any): Promise<any> => {
     throw new Error('Workspaces API not implemented');
   },
 
-  removeMember: async (id: string): Promise<void> => {
+  removeMember: async (_id: string): Promise<void> => {
     throw new Error('Workspaces API not implemented');
   },
 
@@ -907,16 +907,400 @@ export const workspacesApi = {
     throw new Error('Workspaces API not implemented');
   },
 
-  createInvitation: async (data: unknown): Promise<any> => {
+  createInvitation: async (_data: any): Promise<any> => {
     throw new Error('Workspaces API not implemented');
   },
 
-  acceptInvitation: async (id: string): Promise<any> => {
+  acceptInvitation: async (_id: string): Promise<any> => {
     throw new Error('Workspaces API not implemented');
   },
 
-  declineInvitation: async (id: string): Promise<any> => {
+  declineInvitation: async (_id: string): Promise<any> => {
     throw new Error('Workspaces API not implemented');
+  },
+};
+
+// ============================================================================
+// NETWORKING API
+// ============================================================================
+export const networkingApi = {
+  // Connections
+  listConnections: async (): Promise<any[]> => {
+    const response = await apiClient.get('/networking/connections/');
+    return response.data;
+  },
+
+  getConnection: async (id: string): Promise<any> => {
+    const response = await apiClient.get(`/networking/connections/${id}/`);
+    return response.data;
+  },
+
+  createConnection: async (data: any): Promise<any> => {
+    const response = await apiClient.post('/networking/connections/', data);
+    return response.data;
+  },
+
+  updateConnection: async (id: string, data: any): Promise<any> => {
+    const response = await apiClient.patch(`/networking/connections/${id}/`, data);
+    return response.data;
+  },
+
+  deleteConnection: async (id: string): Promise<void> => {
+    await apiClient.delete(`/networking/connections/${id}/`);
+  },
+
+  // Referrals
+  listReferrals: async (): Promise<any[]> => {
+    const response = await apiClient.get('/networking/referrals/');
+    return response.data;
+  },
+
+  createReferral: async (data: any): Promise<any> => {
+    const response = await apiClient.post('/networking/referrals/', data);
+    return response.data;
+  },
+
+  // Events
+  listEvents: async (): Promise<any[]> => {
+    const response = await apiClient.get('/networking/events/');
+    return response.data;
+  },
+
+  createEvent: async (data: any): Promise<any> => {
+    const response = await apiClient.post('/networking/events/', data);
+    return response.data;
+  },
+
+  // Mentorship
+  listMentorships: async (): Promise<any[]> => {
+    const response = await apiClient.get('/networking/mentorships/');
+    return response.data;
+  },
+
+  createMentorship: async (data: any): Promise<any> => {
+    const response = await apiClient.post('/networking/mentorships/', data);
+    return response.data;
+  },
+};
+
+// ============================================================================
+// CAREER API
+// ============================================================================
+export const careerApi = {
+  // Skills
+  listSkills: async (): Promise<any[]> => {
+    const response = await apiClient.get('/career/skills/');
+    return response.data;
+  },
+
+  listUserSkills: async (): Promise<any[]> => {
+    const response = await apiClient.get('/career/user-skills/');
+    return response.data;
+  },
+
+  addUserSkill: async (data: any): Promise<any> => {
+    const response = await apiClient.post('/career/user-skills/', data);
+    return response.data;
+  },
+
+  updateUserSkill: async (id: string, data: any): Promise<any> => {
+    const response = await apiClient.patch(`/career/user-skills/${id}/`, data);
+    return response.data;
+  },
+
+  // Skill Gap Analysis
+  listSkillGaps: async (): Promise<any[]> => {
+    const response = await apiClient.get('/career/skill-gaps/');
+    return response.data;
+  },
+
+  analyzeSkillGap: async (data: any): Promise<any> => {
+    const response = await apiClient.post('/career/skill-gaps/analyze/', data);
+    return response.data;
+  },
+
+  // Learning Resources
+  listLearningResources: async (): Promise<any[]> => {
+    const response = await apiClient.get('/career/learning-resources/');
+    return response.data;
+  },
+
+  listUserProgress: async (): Promise<any[]> => {
+    const response = await apiClient.get('/career/user-progress/');
+    return response.data;
+  },
+
+  updateProgress: async (id: string, data: any): Promise<any> => {
+    const response = await apiClient.patch(`/career/user-progress/${id}/`, data);
+    return response.data;
+  },
+
+  // Learning Paths
+  listLearningPaths: async (): Promise<any[]> => {
+    const response = await apiClient.get('/career/learning-paths/');
+    return response.data;
+  },
+
+  generateLearningPath: async (data: any): Promise<any> => {
+    const response = await apiClient.post('/career/learning-paths/generate/', data);
+    return response.data;
+  },
+
+  // Portfolio Projects
+  listProjects: async (): Promise<any[]> => {
+    const response = await apiClient.get('/career/projects/');
+    return response.data;
+  },
+
+  createProject: async (data: any): Promise<any> => {
+    const response = await apiClient.post('/career/projects/', data);
+    return response.data;
+  },
+
+  updateProject: async (id: string, data: any): Promise<any> => {
+    const response = await apiClient.patch(`/career/projects/${id}/`, data);
+    return response.data;
+  },
+
+  deleteProject: async (id: string): Promise<void> => {
+    await apiClient.delete(`/career/projects/${id}/`);
+  },
+
+  // Career Goals
+  listGoals: async (): Promise<any[]> => {
+    const response = await apiClient.get('/career/goals/');
+    return response.data;
+  },
+
+  createGoal: async (data: any): Promise<any> => {
+    const response = await apiClient.post('/career/goals/', data);
+    return response.data;
+  },
+
+  updateGoal: async (id: string, data: any): Promise<any> => {
+    const response = await apiClient.patch(`/career/goals/${id}/`, data);
+    return response.data;
+  },
+};
+
+// ============================================================================
+// GAMIFICATION API
+// ============================================================================
+export const gamificationApi = {
+  // Achievements
+  listAchievements: async (): Promise<any[]> => {
+    const response = await apiClient.get('/gamification/achievements/');
+    return response.data;
+  },
+
+  listUserAchievements: async (): Promise<any[]> => {
+    const response = await apiClient.get('/gamification/user-achievements/');
+    return response.data;
+  },
+
+  // Points & Streaks
+  getPoints: async (): Promise<any> => {
+    const response = await apiClient.get('/gamification/points/');
+    return response.data;
+  },
+
+  getStreaks: async (): Promise<any[]> => {
+    const response = await apiClient.get('/gamification/streaks/');
+    return response.data;
+  },
+
+  // Leaderboard
+  getLeaderboard: async (period: string = 'weekly'): Promise<any> => {
+    const response = await apiClient.get(`/gamification/leaderboard/?period=${period}`);
+    return response.data;
+  },
+
+  // Challenges
+  listChallenges: async (): Promise<any[]> => {
+    const response = await apiClient.get('/gamification/challenges/');
+    return response.data;
+  },
+
+  listUserChallenges: async (): Promise<any[]> => {
+    const response = await apiClient.get('/gamification/user-challenges/');
+    return response.data;
+  },
+
+  joinChallenge: async (challengeId: string): Promise<any> => {
+    const response = await apiClient.post('/gamification/user-challenges/', { challenge: challengeId });
+    return response.data;
+  },
+
+  // Community
+  listPosts: async (): Promise<any[]> => {
+    const response = await apiClient.get('/gamification/community/posts/');
+    return response.data;
+  },
+
+  createPost: async (data: any): Promise<any> => {
+    const response = await apiClient.post('/gamification/community/posts/', data);
+    return response.data;
+  },
+
+  upvotePost: async (postId: string): Promise<any> => {
+    const response = await apiClient.post(`/gamification/community/posts/${postId}/upvote/`);
+    return response.data;
+  },
+};
+
+// ============================================================================
+// MARKET INTELLIGENCE API
+// ============================================================================
+export const marketIntelApi = {
+  // Companies
+  listCompanies: async (search?: string): Promise<any[]> => {
+    const response = await apiClient.get('/market-intel/companies/', { params: { search } });
+    return response.data;
+  },
+
+  getCompany: async (id: string): Promise<any> => {
+    const response = await apiClient.get(`/market-intel/companies/${id}/`);
+    return response.data;
+  },
+
+  getCompanyByDomain: async (domain: string): Promise<any> => {
+    const response = await apiClient.get('/market-intel/companies/by_domain/', { params: { domain } });
+    return response.data;
+  },
+
+  // Salary Data
+  listSalaries: async (params?: any): Promise<any[]> => {
+    const response = await apiClient.get('/market-intel/salaries/', { params });
+    return response.data;
+  },
+
+  estimateSalary: async (data: any): Promise<any> => {
+    const response = await apiClient.post('/market-intel/salaries/estimate/', data);
+    return response.data;
+  },
+
+  // Industry Trends
+  listTrends: async (industry?: string): Promise<any[]> => {
+    const response = await apiClient.get('/market-intel/industry-trends/', { params: { industry } });
+    return response.data;
+  },
+
+  getCurrentTrends: async (): Promise<any[]> => {
+    const response = await apiClient.get('/market-intel/industry-trends/current/');
+    return response.data;
+  },
+
+  // Hiring Seasons
+  getHiringSeasons: async (industry?: string): Promise<any> => {
+    const response = await apiClient.get('/market-intel/hiring-seasons/best_time/', { params: { industry } });
+    return response.data;
+  },
+
+  // Heatmap
+  getHeatmap: async (country?: string, industry?: string): Promise<any[]> => {
+    const response = await apiClient.get('/market-intel/heatmap/by_country/', { params: { country, industry } });
+    return response.data;
+  },
+
+  // Predictions
+  getPrediction: async (applicationId: string): Promise<any> => {
+    const response = await apiClient.post('/market-intel/predictions/predict/', { application_id: applicationId });
+    return response.data;
+  },
+
+  // ROI
+  listROI: async (): Promise<any[]> => {
+    const response = await apiClient.get('/market-intel/roi/');
+    return response.data;
+  },
+
+  calculateROI: async (startDate: string, endDate: string): Promise<any> => {
+    const response = await apiClient.post('/market-intel/roi/calculate/', { start_date: startDate, end_date: endDate });
+    return response.data;
+  },
+};
+
+// ============================================================================
+// PRIVACY & SECURITY API
+// ============================================================================
+export const privacyApi = {
+  // Data Export
+  listExports: async (): Promise<any[]> => {
+    const response = await apiClient.get('/privacy/exports/');
+    return response.data;
+  },
+
+  requestExport: async (data: any): Promise<any> => {
+    const response = await apiClient.post('/privacy/exports/', data);
+    return response.data;
+  },
+
+  downloadExport: async (id: string): Promise<any> => {
+    const response = await apiClient.get(`/privacy/exports/${id}/download/`);
+    return response.data;
+  },
+
+  // 2FA
+  get2FAStatus: async (): Promise<any> => {
+    const response = await apiClient.get('/privacy/2fa/');
+    return response.data;
+  },
+
+  setup2FA: async (data: any): Promise<any> => {
+    const response = await apiClient.post('/privacy/2fa/', data);
+    return response.data;
+  },
+
+  verify2FA: async (code: string, useBackup?: boolean): Promise<any> => {
+    const response = await apiClient.post('/privacy/2fa/verify/', { code, use_backup: useBackup });
+    return response.data;
+  },
+
+  disable2FA: async (): Promise<void> => {
+    await apiClient.delete('/privacy/2fa/');
+  },
+
+  // Login Attempts
+  listLoginAttempts: async (): Promise<any[]> => {
+    const response = await apiClient.get('/privacy/login-attempts/');
+    return response.data;
+  },
+
+  // Encrypted Notes
+  listEncryptedNotes: async (): Promise<any[]> => {
+    const response = await apiClient.get('/privacy/notes/');
+    return response.data;
+  },
+
+  createEncryptedNote: async (data: any): Promise<any> => {
+    const response = await apiClient.post('/privacy/notes/', data);
+    return response.data;
+  },
+
+  updateEncryptedNote: async (id: string, data: any): Promise<any> => {
+    const response = await apiClient.patch(`/privacy/notes/${id}/`, data);
+    return response.data;
+  },
+
+  deleteEncryptedNote: async (id: string): Promise<void> => {
+    await apiClient.delete(`/privacy/notes/${id}/`);
+  },
+
+  // Audit Log
+  listAuditLogs: async (): Promise<any[]> => {
+    const response = await apiClient.get('/privacy/audit-log/');
+    return response.data;
+  },
+
+  // Privacy Settings
+  getPrivacySettings: async (): Promise<any> => {
+    const response = await apiClient.get('/privacy/settings/');
+    return response.data;
+  },
+
+  updatePrivacySettings: async (data: any): Promise<any> => {
+    const response = await apiClient.patch('/privacy/settings/', data);
+    return response.data;
   },
 };
 
@@ -946,6 +1330,9 @@ export const api = {
   notificationLogs: notificationLogsApi,
   calendar: calendarApi,
   workspaces: workspacesApi,
+  networking: networkingApi,
+  career: careerApi,
+  gamification: gamificationApi,
+  marketIntel: marketIntelApi,
+  privacy: privacyApi,
 };
-
-export default api;

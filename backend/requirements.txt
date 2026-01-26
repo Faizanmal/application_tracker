@@ -48,5 +48,10 @@ openai>=1.12.0
 reportlab>=4.1.0
 openpyxl>=3.1.2
 
+# Security & Encryption (for 2FA and encrypted notes)
+pyotp>=2.9.0
+cryptography>=42.0.0
+qrcode>=7.4.2
+
 # Development
 python-dotenv>=1.0.0

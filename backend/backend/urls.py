@@ -24,6 +24,12 @@ urlpatterns = [
     path("api/v1/analytics/", include("apps.analytics.urls")),
     path("api/v1/subscriptions/", include("apps.subscriptions.urls")),
     path("api/v1/ai/", include("apps.ai_features.urls")),
+    path("api/v1/networking/", include("apps.networking.urls")),
+    path("api/v1/career/", include("apps.career.urls")),
+    path("api/v1/gamification/", include("apps.gamification.urls")),
+    path("api/v1/integrations/", include("apps.integrations.urls")),
+    path("api/v1/market-intel/", include("apps.market_intel.urls")),
+    path("api/v1/privacy/", include("apps.privacy.urls")),
 ]
 
 # Serve media files in development

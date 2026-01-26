@@ -49,6 +49,12 @@ INSTALLED_APPS = [
     "apps.analytics",
     "apps.subscriptions",
     "apps.ai_features",
+    "apps.networking",
+    "apps.career",
+    "apps.gamification",
+    "apps.integrations",
+    "apps.market_intel",
+    "apps.privacy",
 ]
 
 MIDDLEWARE = [

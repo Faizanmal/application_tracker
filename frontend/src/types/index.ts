@@ -505,3 +505,393 @@ export interface WorkspaceMember {
   role: string;
   // Add other fields as needed
 }
+// ============================================================================
+// NETWORKING TYPES
+// ============================================================================
+export interface ProfessionalConnection {
+  id: string;
+  name: string;
+  email: string;
+  company: string;
+  title: string;
+  linkedin_url: string;
+  phone: string;
+  connection_type: 'colleague' | 'recruiter' | 'alumni' | 'referral' | 'mentor' | 'other';
+  relationship_strength: 1 | 2 | 3 | 4 | 5;
+  is_alumni: boolean;
+  notes: string;
+  last_contacted: string | null;
+  next_followup: string | null;
+  created_at: string;
+}
+
+export interface Referral {
+  id: string;
+  application: string;
+  referrer: string;
+  referrer_details?: ProfessionalConnection;
+  referral_date: string;
+  referral_status: 'pending' | 'submitted' | 'acknowledged' | 'interview_scheduled' | 'hired' | 'declined';
+  notes: string;
+}
+
+export interface NetworkingEvent {
+  id: string;
+  name: string;
+  event_type: 'conference' | 'meetup' | 'webinar' | 'career_fair' | 'info_session' | 'other';
+  location: string;
+  is_virtual: boolean;
+  date: string;
+  end_date: string | null;
+  notes: string;
+  connections_made: number;
+}
+
+export interface MentorshipRelationship {
+  id: string;
+  mentor: string;
+  mentor_details?: ProfessionalConnection;
+  relationship_type: 'formal' | 'informal' | 'peer';
+  status: 'active' | 'paused' | 'completed';
+  goals: string[];
+  meeting_frequency: string;
+  total_sessions: number;
+}
+
+// ============================================================================
+// CAREER DEVELOPMENT TYPES
+// ============================================================================
+export interface Skill {
+  id: string;
+  name: string;
+  category: string;
+  is_verified: boolean;
+}
+
+export interface UserSkill {
+  id: string;
+  skill: string;
+  skill_details?: Skill;
+  proficiency_level: 1 | 2 | 3 | 4 | 5;
+  years_experience: number | null;
+  is_verified: boolean;
+  last_used: string | null;
+}
+
+export interface SkillGapAnalysis {
+  id: string;
+  job_title: string;
+  target_company: string;
+  match_percentage: number;
+  missing_skills: string[];
+  skills_to_improve: string[];
+  strong_skills: string[];
+  recommendations: string[];
+  created_at: string;
+}
+
+export interface LearningResource {
+  id: string;
+  title: string;
+  platform: string;
+  resource_type: 'course' | 'book' | 'article' | 'video' | 'tutorial' | 'certification';
+  url: string;
+  duration_hours: number | null;
+  difficulty_level: string;
+  is_free: boolean;
+  price: number | null;
+}
+
+export interface UserLearningProgress {
+  id: string;
+  resource: string;
+  resource_details?: LearningResource;
+  status: 'not_started' | 'in_progress' | 'completed' | 'dropped';
+  progress_percentage: number;
+  hours_spent: number;
+  completed_at: string | null;
+}
+
+export interface PortfolioProject {
+  id: string;
+  title: string;
+  description: string;
+  project_url: string;
+  github_url: string;
+  technologies: string[];
+  featured_image: string;
+  is_featured: boolean;
+  start_date: string | null;
+  end_date: string | null;
+}
+
+export interface CareerGoal {
+  id: string;
+  title: string;
+  description: string;
+  goal_type: 'skill' | 'role' | 'salary' | 'company' | 'project' | 'certification';
+  target_date: string | null;
+  status: 'not_started' | 'in_progress' | 'completed' | 'abandoned';
+  progress_percentage: number;
+  milestones: Array<{ title: string; completed: boolean; completed_at?: string }>;
+}
+
+// ============================================================================
+// GAMIFICATION TYPES
+// ============================================================================
+export interface Achievement {
+  id: string;
+  name: string;
+  description: string;
+  icon: string;
+  category: string;
+  tier: 'bronze' | 'silver' | 'gold' | 'platinum' | 'diamond';
+  points: number;
+  criteria: Record<string, unknown>;
+}
+
+export interface UserAchievement {
+  id: string;
+  achievement: string;
+  achievement_details?: Achievement;
+  progress: number;
+  earned_at: string | null;
+}
+
+export interface UserStreak {
+  id: string;
+  streak_type: 'daily_login' | 'daily_application' | 'weekly_goal' | 'learning';
+  current_streak: number;
+  longest_streak: number;
+  last_activity_date: string;
+}
+
+export interface UserPoints {
+  id: string;
+  total_points: number;
+  application_points: number;
+  interview_points: number;
+  networking_points: number;
+  learning_points: number;
+  level: number;
+}
+
+export interface LeaderboardEntry {
+  id: string;
+  level: number;
+  points: number;
+}
+
+export interface Challenge {
+  id: string;
+  title: string;
+  description: string;
+  challenge_type: string;
+  target_count: number;
+  points_reward: number;
+  start_date: string;
+  end_date: string;
+  is_active: boolean;
+}
+
+export interface UserChallenge {
+  id: string;
+  challenge: string;
+  challenge_details?: Challenge;
+  progress: number;
+  completed: boolean;
+  completed_at: string | null;
+}
+
+export interface CommunityPost {
+  id: string;
+  title: string;
+  content: string;
+  post_type: 'success_story' | 'tip' | 'question' | 'discussion' | 'resource';
+  is_anonymous: boolean;
+  upvotes_count: number;
+  comments_count: number;
+  created_at: string;
+}
+
+// ============================================================================
+// MARKET INTELLIGENCE TYPES
+// ============================================================================
+export interface CompanyProfile {
+  id: string;
+  name: string;
+  domain: string;
+  description: string;
+  industry: string;
+  company_size: string;
+  employee_count: number | null;
+  headquarters: string;
+  logo_url: string;
+  glassdoor_rating: number | null;
+  is_hiring: boolean;
+  open_positions_count: number;
+  tech_stack: string[];
+  culture_keywords: string[];
+  benefits: string[];
+}
+
+export interface SalaryData {
+  id: string;
+  job_title: string;
+  location: string;
+  salary_min: number;
+  salary_max: number;
+  salary_median: number | null;
+  currency: string;
+  seniority_level: string;
+  industry: string;
+  sample_size: number;
+  year: number;
+}
+
+export interface IndustryTrend {
+  id: string;
+  industry: string;
+  hiring_trend: 'growing' | 'stable' | 'declining';
+  growth_rate: number | null;
+  top_skills: string[];
+  emerging_skills: string[];
+  remote_percentage: number | null;
+  year: number;
+  quarter: number;
+}
+
+export interface SuccessPrediction {
+  id: string;
+  application: string;
+  overall_score: number;
+  skill_match_score: number | null;
+  experience_match_score: number | null;
+  company_fit_score: number | null;
+  strengths: string[];
+  weaknesses: string[];
+  recommendations: string[];
+  response_probability: number | null;
+  interview_probability: number | null;
+  offer_probability: number | null;
+}
+
+export interface JobSearchROI {
+  id: string;
+  start_date: string;
+  end_date: string;
+  total_applications: number;
+  responses_received: number;
+  interviews_scheduled: number;
+  offers_received: number;
+  response_rate: number | null;
+  interview_rate: number | null;
+  offer_rate: number | null;
+}
+
+// ============================================================================
+// PRIVACY & SECURITY TYPES
+// ============================================================================
+export interface DataExportRequest {
+  id: string;
+  status: 'pending' | 'processing' | 'completed' | 'failed' | 'expired';
+  format: 'json' | 'csv' | 'pdf';
+  file_size: number | null;
+  download_url: string;
+  expires_at: string | null;
+  created_at: string;
+  completed_at: string | null;
+}
+
+export interface TwoFactorAuth {
+  id: string;
+  is_enabled: boolean;
+  primary_method: 'totp' | 'sms' | 'email';
+  totp_confirmed: boolean;
+  backup_codes_remaining: number;
+  last_used_at: string | null;
+}
+
+export interface LoginAttempt {
+  id: string;
+  ip_address: string;
+  user_agent: string;
+  successful: boolean;
+  is_suspicious: boolean;
+  suspicious_reason: string;
+  country: string;
+  city: string;
+  created_at: string;
+}
+
+export interface EncryptedNote {
+  id: string;
+  application: string | null;
+  title: string;
+  encrypted_content: string;
+  category: string;
+  tags: string[];
+  is_pinned: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AuditLog {
+  id: string;
+  event_type: string;
+  event_type_display: string;
+  description: string;
+  severity: 'critical' | 'warning' | 'info';
+  ip_address: string;
+  user_agent: string;
+  created_at: string;
+}
+
+// ============================================================================
+// INTEGRATIONS TYPES
+// ============================================================================
+export interface EmailIntegration {
+  id: string;
+  provider: 'gmail' | 'outlook';
+  email_address: string;
+  is_connected: boolean;
+  last_synced: string | null;
+  auto_track_applications: boolean;
+}
+
+export interface CalendarIntegration {
+  id: string;
+  provider: 'google' | 'outlook' | 'apple';
+  calendar_id: string;
+  is_connected: boolean;
+  sync_interviews: boolean;
+  sync_reminders: boolean;
+}
+
+export interface LinkedInIntegration {
+  id: string;
+  linkedin_url: string;
+  is_connected: boolean;
+  connection_count: number | null;
+  last_synced: string | null;
+}
+
+export interface SlackIntegration {
+  id: string;
+  workspace_name: string;
+  channel_id: string;
+  is_active: boolean;
+  notify_on_status_change: boolean;
+  notify_on_interview: boolean;
+}
+
+export interface APIKey {
+  id: string;
+  name: string;
+  key_prefix: string;
+  permissions: string[];
+  last_used: string | null;
+  expires_at: string | null;
+  is_active: boolean;
+  created_at: string;
+}

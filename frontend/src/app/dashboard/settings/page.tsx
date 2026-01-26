@@ -4,10 +4,12 @@ import { useState, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Camera } from 'lucide-react';
+import { Loader2, Camera, Settings, User, Sparkles, Shield } from 'lucide-react';
 
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+// import { Button } from '@/components/ui/button';
+import { CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { AnimatedCard } from '@/components/ui/animated-card';
+import { GradientButton } from '@/components/ui/animated-elements';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
@@ -31,7 +33,6 @@ import {
 } from '@/components/ui/form';
 import { useAuthStore } from '@/lib/auth';
 import { useUpdateProfile } from '@/hooks/use-queries';
-import { User } from '@/types';
 import { toast } from 'sonner';
 
 const profileSchema = z.object({
@@ -47,8 +48,6 @@ const profileSchema = z.object({
   preferred_work_mode: z.string().optional(),
   weekly_application_goal: z.coerce.number().min(1).max(100).optional(),
 });
-
-type ProfileFormData = z.infer<typeof profileSchema>;
 
 const JOB_TYPES = [
   { value: 'full_time', label: 'Full Time' },
@@ -88,9 +87,9 @@ export default function ProfileSettingsPage() {
     },
   });
 
-  const onSubmit = async (data: unknown) => {
+  const onSubmit = async (data: Record<string, unknown>) => {
     try {
-      await updateProfile.mutateAsync(data as Partial<User>);
+      await updateProfile.mutateAsync(data);
       await fetchUser();
       toast.success('Profile updated successfully');
     } catch (_error) {
@@ -117,19 +116,46 @@ export default function ProfileSettingsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="p-6 space-y-6">
+      {/* Header with Gradient */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-700 via-gray-700 to-zinc-700 p-8">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+        <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-blue-400/20 rounded-full blur-xl" />
+        
+        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+          <div className="animate-fade-in-up">
+            <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+              <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                <Settings className="h-7 w-7" />
+              </div>
+              Profile Settings
+            </h1>
+            <p className="text-white/80 mt-2 max-w-md">
+              Manage your personal information and preferences
+            </p>
+          </div>
+        </div>
+      </div>
+
       {/* Profile Photo */}
-      <Card>
+      <AnimatedCard variant="interactive" hoverEffect="lift">
         <CardHeader>
-          <CardTitle>Profile Photo</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <div className="p-2 bg-gradient-to-br from-primary to-purple-600 rounded-lg">
+              <Camera className="h-4 w-4 text-white" />
+            </div>
+            Profile Photo
+          </CardTitle>
           <CardDescription>
             This photo will be displayed on your profile
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-6">
-            <div className="relative">
-              <Avatar className="h-24 w-24">
+            <div className="relative group">
+              <div className="absolute -inset-1 bg-gradient-to-r from-primary to-purple-600 rounded-full opacity-0 group-hover:opacity-75 blur transition-opacity" />
+              <Avatar className="relative h-24 w-24 ring-4 ring-white shadow-lg">
                 <AvatarImage src={avatarPreview || user?.profile?.avatar} />
                 <AvatarFallback className="text-2xl bg-primary text-primary-foreground">
                   {getInitials()}
@@ -138,7 +164,7 @@ export default function ProfileSettingsPage() {
               <button
                 type="button"
                 onClick={() => avatarInputRef.current?.click()}
-                className="absolute bottom-0 right-0 p-2 rounded-full bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                className="absolute bottom-0 right-0 p-2 rounded-full bg-gradient-to-br from-primary to-purple-600 text-white hover:shadow-lg transition-all"
               >
                 <Camera className="h-4 w-4" />
               </button>
@@ -158,12 +184,17 @@ export default function ProfileSettingsPage() {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </AnimatedCard>
 
       {/* Personal Information */}
-      <Card>
+      <AnimatedCard variant="default" className="animate-fade-in-up stagger-2">
         <CardHeader>
-          <CardTitle>Personal Information</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <div className="p-2 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg">
+              <User className="h-4 w-4 text-white" />
+            </div>
+            Personal Information
+          </CardTitle>
           <CardDescription>
             Update your personal details
           </CardDescription>
@@ -367,49 +398,60 @@ export default function ProfileSettingsPage() {
               </div>
 
               <div className="flex justify-end">
-                <Button type="submit" disabled={updateProfile.isPending}>
+                <GradientButton type="submit" disabled={updateProfile.isPending}>
                   {updateProfile.isPending ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Saving...
                     </>
                   ) : (
-                    'Save Changes'
+                    <>
+                      <Sparkles className="mr-2 h-4 w-4" />
+                      Save Changes
+                    </>
                   )}
-                </Button>
+                </GradientButton>
               </div>
             </form>
           </Form>
         </CardContent>
-      </Card>
+      </AnimatedCard>
 
       {/* Account Information */}
-      <Card>
+      <AnimatedCard variant="default" className="animate-fade-in-up stagger-3">
         <CardHeader>
-          <CardTitle>Account Information</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <div className="p-2 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg">
+              <Shield className="h-4 w-4 text-white" />
+            </div>
+            Account Information
+          </CardTitle>
           <CardDescription>
             Your account email and status
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            <div>
-              <Label className="text-muted-foreground">Email</Label>
-              <p className="font-medium">{user?.email}</p>
+            <div className="p-4 bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl">
+              <Label className="text-muted-foreground text-sm">Email</Label>
+              <p className="font-medium text-lg">{user?.email}</p>
             </div>
-            <div>
-              <Label className="text-muted-foreground">Account Status</Label>
-              <p className="font-medium">
+            <div className="p-4 bg-gradient-to-br from-primary/5 to-purple-500/5 rounded-xl">
+              <Label className="text-muted-foreground text-sm">Account Status</Label>
+              <p className="font-medium text-lg">
                 {user?.subscription_tier === 'pro' ? (
-                  <span className="text-primary">Pro Account</span>
+                  <span className="bg-gradient-to-r from-primary to-purple-600 bg-clip-text text-transparent font-bold flex items-center gap-2">
+                    <Sparkles className="h-5 w-5 text-primary" />
+                    Pro Account
+                  </span>
                 ) : (
                   <span>Free Account</span>
                 )}
               </p>
             </div>
-            <div>
-              <Label className="text-muted-foreground">Member Since</Label>
-              <p className="font-medium">
+            <div className="p-4 bg-gradient-to-br from-gray-50 to-slate-50 rounded-xl">
+              <Label className="text-muted-foreground text-sm">Member Since</Label>
+              <p className="font-medium text-lg">
                 {user?.date_joined
                   ? new Date(user.date_joined).toLocaleDateString('en-US', {
                       year: 'numeric',
@@ -421,7 +463,7 @@ export default function ProfileSettingsPage() {
             </div>
           </div>
         </CardContent>
-      </Card>
+      </AnimatedCard>
     </div>
   );
 }

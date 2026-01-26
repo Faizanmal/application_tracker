@@ -17,7 +17,9 @@ import {
   Edit,
   Archive,
   Calendar,
-  Building2
+  Building2,
+  Briefcase,
+  Target,
 } from 'lucide-react';
 import {
   DndContext,
@@ -67,18 +69,19 @@ import {
   useDeleteApplication,
   useToggleFavorite,
 } from '@/hooks/use-queries';
+import { AnimatedNumber } from '@/components/ui/animated-elements';
 import type { JobApplication, ApplicationStatus } from '@/types';
 
-const STATUS_CONFIG: Record<ApplicationStatus, { label: string; color: string; bgColor: string }> = {
-  wishlist: { label: 'Wishlist', color: 'text-slate-600', bgColor: 'bg-slate-100' },
-  applied: { label: 'Applied', color: 'text-blue-600', bgColor: 'bg-blue-100' },
-  screening: { label: 'Screening', color: 'text-purple-600', bgColor: 'bg-purple-100' },
-  interviewing: { label: 'Interviewing', color: 'text-amber-600', bgColor: 'bg-amber-100' },
-  offer: { label: 'Offer', color: 'text-green-600', bgColor: 'bg-green-100' },
-  accepted: { label: 'Accepted', color: 'text-emerald-600', bgColor: 'bg-emerald-100' },
-  rejected: { label: 'Rejected', color: 'text-red-600', bgColor: 'bg-red-100' },
-  withdrawn: { label: 'Withdrawn', color: 'text-gray-600', bgColor: 'bg-gray-100' },
-  ghosted: { label: 'Ghosted', color: 'text-gray-400', bgColor: 'bg-gray-50' },
+const STATUS_CONFIG: Record<ApplicationStatus, { label: string; color: string; bgColor: string; gradient: string }> = {
+  wishlist: { label: 'Wishlist', color: 'text-slate-600', bgColor: 'bg-slate-100', gradient: 'from-slate-400 to-slate-500' },
+  applied: { label: 'Applied', color: 'text-blue-600', bgColor: 'bg-blue-100', gradient: 'from-blue-400 to-blue-600' },
+  screening: { label: 'Screening', color: 'text-purple-600', bgColor: 'bg-purple-100', gradient: 'from-purple-400 to-purple-600' },
+  interviewing: { label: 'Interviewing', color: 'text-amber-600', bgColor: 'bg-amber-100', gradient: 'from-amber-400 to-orange-500' },
+  offer: { label: 'Offer', color: 'text-green-600', bgColor: 'bg-green-100', gradient: 'from-green-400 to-emerald-600' },
+  accepted: { label: 'Accepted', color: 'text-emerald-600', bgColor: 'bg-emerald-100', gradient: 'from-emerald-400 to-teal-600' },
+  rejected: { label: 'Rejected', color: 'text-red-600', bgColor: 'bg-red-100', gradient: 'from-red-400 to-red-600' },
+  withdrawn: { label: 'Withdrawn', color: 'text-gray-600', bgColor: 'bg-gray-100', gradient: 'from-gray-400 to-gray-500' },
+  ghosted: { label: 'Ghosted', color: 'text-gray-400', bgColor: 'bg-gray-50', gradient: 'from-gray-300 to-gray-400' },
 };
 
 // Draggable Application Card
@@ -112,28 +115,28 @@ function ApplicationCard({
       style={style}
       {...attributes}
       {...listeners}
-      className={`group bg-white dark:bg-gray-800 rounded-lg border p-3 cursor-grab active:cursor-grabbing transition-shadow hover:shadow-md ${
-        isDragging ? 'shadow-lg ring-2 ring-primary opacity-50' : ''
+      className={`group bg-white dark:bg-gray-800 rounded-xl border p-4 cursor-grab active:cursor-grabbing transition-all duration-300 hover:shadow-lg hover:border-primary/30 hover:-translate-y-0.5 ${
+        isDragging ? 'shadow-xl ring-2 ring-primary/50 opacity-90 scale-105' : ''
       }`}
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {application.company_logo ? (
               <Image 
                 src={application.company_logo} 
                 alt={application.company_name}
-                width={32}
-                height={32}
-                className="w-8 h-8 rounded object-contain bg-gray-50"
+                width={40}
+                height={40}
+                className="w-10 h-10 rounded-lg object-contain bg-gray-50 shadow-sm"
               />
             ) : (
-              <div className="w-8 h-8 rounded bg-primary/10 flex items-center justify-center">
-                <Building2 className="w-4 h-4 text-primary" />
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center shadow-sm">
+                <Building2 className="w-5 h-5 text-primary" />
               </div>
             )}
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-sm truncate">{application.company_name}</p>
+              <p className="font-semibold text-sm truncate group-hover:text-primary transition-colors">{application.company_name}</p>
               <p className="text-xs text-muted-foreground truncate">{application.job_title}</p>
             </div>
           </div>
@@ -277,38 +280,40 @@ function KanbanColumn({
   const config = STATUS_CONFIG[status];
 
   return (
-    <div className="flex-shrink-0 w-80">
-      <div className={`rounded-t-lg px-3 py-2 ${config.bgColor}`}>
+    <div className="flex-shrink-0 w-80 animate-fade-in-up">
+      <div className={`rounded-t-xl px-4 py-3 bg-gradient-to-r ${config.gradient}`}>
         <div className="flex items-center justify-between">
-          <h3 className={`font-semibold text-sm ${config.color}`}>
+          <h3 className="font-semibold text-sm text-white drop-shadow-sm">
             {config.label}
           </h3>
-          <Badge variant="secondary" className="text-xs">
+          <Badge variant="secondary" className="bg-white/20 text-white border-0 backdrop-blur-sm">
             {applications.length}
           </Badge>
         </div>
       </div>
       
-      <div className="bg-muted/30 rounded-b-lg p-2 min-h-[500px]">
+      <div className="bg-gradient-to-b from-muted/50 to-muted/20 rounded-b-xl p-3 min-h-[500px] border border-t-0 border-muted/50">
         <SortableContext 
           items={applications.map(a => a.id)} 
           strategy={verticalListSortingStrategy}
         >
-          <div className="space-y-2">
-            {applications.map((application) => (
-              <ApplicationCard 
-                key={application.id} 
-                application={application}
-                onDelete={onDelete}
-                onToggleFavorite={onToggleFavorite}
-              />
+          <div className="space-y-3">
+            {applications.map((application, index) => (
+              <div key={application.id} style={{ animationDelay: `${index * 50}ms` }} className="animate-fade-in-up">
+                <ApplicationCard 
+                  application={application}
+                  onDelete={onDelete}
+                  onToggleFavorite={onToggleFavorite}
+                />
+              </div>
             ))}
           </div>
         </SortableContext>
         
         {applications.length === 0 && (
-          <div className="h-32 flex items-center justify-center text-muted-foreground text-sm">
-            No applications
+          <div className="h-32 flex flex-col items-center justify-center text-muted-foreground text-sm">
+            <Target className="h-8 w-8 mb-2 opacity-30" />
+            <span>No applications</span>
           </div>
         )}
       </div>
@@ -447,45 +452,97 @@ export default function ApplicationsPage() {
     return null;
   }, [activeId, kanbanData]);
 
+  // Calculate stats
+  const totalApplications = useMemo(() => {
+    if (!kanbanData) return 0;
+    return Object.values(kanbanData).reduce((sum, col) => sum + col.applications.length, 0);
+  }, [kanbanData]);
+
+  const activeApplications = useMemo(() => {
+    if (!kanbanData) return 0;
+    const activeStatuses: ApplicationStatus[] = ['applied', 'screening', 'interviewing', 'offer'];
+    return activeStatuses.reduce((sum, status) => sum + (kanbanData[status]?.applications.length || 0), 0);
+  }, [kanbanData]);
+
   return (
     <div className="h-full flex flex-col">
-      {/* Header */}
-      <div className="flex-shrink-0 p-6 border-b bg-background">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <h1 className="text-2xl font-bold">Applications</h1>
-            <p className="text-muted-foreground">
-              Track and manage your job applications
-            </p>
+      {/* Header with Gradient */}
+      <div className="flex-shrink-0 border-b bg-background">
+        <div className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600 p-8">
+          {/* Decorative elements */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2" />
+          <div className="absolute top-1/2 right-1/4 w-32 h-32 bg-indigo-400/20 rounded-full blur-xl" />
+          
+          <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div className="animate-fade-in-up">
+              <h1 className="text-3xl font-bold text-white flex items-center gap-3">
+                <div className="p-2 bg-white/20 rounded-xl backdrop-blur-sm">
+                  <Briefcase className="h-7 w-7" />
+                </div>
+                Applications
+              </h1>
+              <p className="text-white/80 mt-2 max-w-md">
+                Track and manage your job applications with drag-and-drop
+              </p>
+            </div>
+            <Link href="/dashboard/applications/new" className="animate-fade-in-up stagger-2">
+              <Button className="bg-white text-indigo-600 hover:bg-white/90 shadow-lg hover:shadow-xl transition-all group">
+                <Plus className="mr-2 h-4 w-4 group-hover:rotate-90 transition-transform duration-300" />
+                Add Application
+              </Button>
+            </Link>
           </div>
-          <Link href="/dashboard/applications/new">
-            <Button>
-              <Plus className="mr-2 h-4 w-4" />
-              Add Application
-            </Button>
-          </Link>
+
+          {/* Quick Stats */}
+          <div className="relative grid grid-cols-4 gap-4 mt-6 animate-fade-in-up stagger-3">
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+              <p className="text-white/70 text-sm">Total</p>
+              <p className="text-2xl font-bold text-white">
+                <AnimatedNumber value={totalApplications} />
+              </p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+              <p className="text-white/70 text-sm">Active</p>
+              <p className="text-2xl font-bold text-white">
+                <AnimatedNumber value={activeApplications} />
+              </p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+              <p className="text-white/70 text-sm">Interviewing</p>
+              <p className="text-2xl font-bold text-white">
+                <AnimatedNumber value={kanbanData?.interviewing?.applications.length || 0} />
+              </p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-white/20">
+              <p className="text-white/70 text-sm">Offers</p>
+              <p className="text-2xl font-bold text-white">
+                <AnimatedNumber value={kanbanData?.offer?.applications.length || 0} />
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Search & Filters */}
-        <div className="mt-4 flex flex-col sm:flex-row gap-4">
+        <div className="p-4 flex flex-col sm:flex-row gap-4 bg-muted/30">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               placeholder="Search by company or job title..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 bg-white shadow-sm border-muted/50"
             />
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" size="icon">
+            <Button variant="outline" size="icon" className="shadow-sm">
               <Filter className="h-4 w-4" />
             </Button>
-            <div className="flex border rounded-md">
+            <div className="flex border rounded-lg shadow-sm overflow-hidden">
               <Button
                 variant={viewMode === 'kanban' ? 'secondary' : 'ghost'}
                 size="icon"
-                className="rounded-r-none"
+                className="rounded-none border-0"
                 onClick={() => setViewMode('kanban')}
               >
                 <Grid3X3 className="h-4 w-4" />
@@ -493,7 +550,7 @@ export default function ApplicationsPage() {
               <Button
                 variant={viewMode === 'list' ? 'secondary' : 'ghost'}
                 size="icon"
-                className="rounded-l-none"
+                className="rounded-none border-0"
                 onClick={() => setViewMode('list')}
               >
                 <List className="h-4 w-4" />
@@ -504,15 +561,15 @@ export default function ApplicationsPage() {
       </div>
 
       {/* Kanban Board */}
-      <div className="flex-1 overflow-x-auto p-6">
+      <div className="flex-1 overflow-x-auto p-6 bg-gradient-to-b from-muted/20 to-background">
         {isLoading ? (
           <div className="flex gap-4">
-            {visibleStatuses.map((status) => (
-              <div key={status} className="flex-shrink-0 w-80">
-                <Skeleton className="h-10 w-full rounded-t-lg" />
-                <div className="bg-muted/30 rounded-b-lg p-2 space-y-2">
+            {visibleStatuses.map((status, index) => (
+              <div key={status} className="flex-shrink-0 w-80 animate-fade-in-up" style={{ animationDelay: `${index * 100}ms` }}>
+                <Skeleton className="h-12 w-full rounded-t-xl" />
+                <div className="bg-muted/30 rounded-b-xl p-3 space-y-3 border border-t-0">
                   {[1, 2, 3].map((i) => (
-                    <Skeleton key={i} className="h-24 w-full" />
+                    <Skeleton key={i} className="h-28 w-full rounded-xl" />
                   ))}
                 </div>
               </div>

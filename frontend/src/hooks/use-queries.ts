@@ -791,3 +791,511 @@ export function useGenerateCoverLetter() {
     },
   });
 }
+// ============================================================================
+// NETWORKING HOOKS
+// ============================================================================
+export const networkingKeys = {
+  connections: ['networking', 'connections'] as const,
+  connection: (id: string) => ['networking', 'connections', id] as const,
+  referrals: ['networking', 'referrals'] as const,
+  events: ['networking', 'events'] as const,
+  mentorships: ['networking', 'mentorships'] as const,
+};
+
+export function useConnections() {
+  return useQuery({
+    queryKey: networkingKeys.connections,
+    queryFn: () => api.networking.listConnections(),
+  });
+}
+
+export function useCreateConnection() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.networking.createConnection(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: networkingKeys.connections });
+      toast.success('Connection added');
+    },
+  });
+}
+
+export function useUpdateConnection() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: Record<string, unknown> }) => api.networking.updateConnection(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: networkingKeys.connections });
+      toast.success('Connection updated');
+    },
+  });
+}
+
+export function useDeleteConnection() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => api.networking.deleteConnection(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: networkingKeys.connections });
+      toast.success('Connection deleted');
+    },
+  });
+}
+
+export function useReferrals() {
+  return useQuery({
+    queryKey: networkingKeys.referrals,
+    queryFn: () => api.networking.listReferrals(),
+  });
+}
+
+export function useNetworkingEvents() {
+  return useQuery({
+    queryKey: networkingKeys.events,
+    queryFn: () => api.networking.listEvents(),
+  });
+}
+
+export function useMentorships() {
+  return useQuery({
+    queryKey: networkingKeys.mentorships,
+    queryFn: () => api.networking.listMentorships(),
+  });
+}
+
+// ============================================================================
+// CAREER HOOKS
+// ============================================================================
+export const careerKeys = {
+  skills: ['career', 'skills'] as const,
+  userSkills: ['career', 'user-skills'] as const,
+  skillGaps: ['career', 'skill-gaps'] as const,
+  learningResources: ['career', 'learning-resources'] as const,
+  learningProgress: ['career', 'learning-progress'] as const,
+  learningPaths: ['career', 'learning-paths'] as const,
+  projects: ['career', 'projects'] as const,
+  goals: ['career', 'goals'] as const,
+};
+
+export function useSkills() {
+  return useQuery({
+    queryKey: careerKeys.skills,
+    queryFn: () => api.career.listSkills(),
+  });
+}
+
+export function useUserSkills() {
+  return useQuery({
+    queryKey: careerKeys.userSkills,
+    queryFn: () => api.career.listUserSkills(),
+  });
+}
+
+export function useAddUserSkill() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.career.addUserSkill(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: careerKeys.userSkills });
+      toast.success('Skill added');
+    },
+  });
+}
+
+export function useSkillGapAnalysis() {
+  return useQuery({
+    queryKey: careerKeys.skillGaps,
+    queryFn: () => api.career.listSkillGaps(),
+  });
+}
+
+export function useAnalyzeSkillGap() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.career.analyzeSkillGap(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: careerKeys.skillGaps });
+      toast.success('Skill gap analysis completed');
+    },
+  });
+}
+
+export function useLearningResources() {
+  return useQuery({
+    queryKey: careerKeys.learningResources,
+    queryFn: () => api.career.listLearningResources(),
+  });
+}
+
+export function useLearningProgress() {
+  return useQuery({
+    queryKey: careerKeys.learningProgress,
+    queryFn: () => api.career.listUserProgress(),
+  });
+}
+
+export function useLearningPaths() {
+  return useQuery({
+    queryKey: careerKeys.learningPaths,
+    queryFn: () => api.career.listLearningPaths(),
+  });
+}
+
+export function useGenerateLearningPath() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.career.generateLearningPath(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: careerKeys.learningPaths });
+      toast.success('Learning path generated');
+    },
+  });
+}
+
+export function usePortfolioProjects() {
+  return useQuery({
+    queryKey: careerKeys.projects,
+    queryFn: () => api.career.listProjects(),
+  });
+}
+
+export function useCreateProject() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.career.createProject(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: careerKeys.projects });
+      toast.success('Project added');
+    },
+  });
+}
+
+export function useCareerGoals() {
+  return useQuery({
+    queryKey: careerKeys.goals,
+    queryFn: () => api.career.listGoals(),
+  });
+}
+
+export function useCreateCareerGoal() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.career.createGoal(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: careerKeys.goals });
+      toast.success('Goal created');
+    },
+  });
+}
+
+// ============================================================================
+// GAMIFICATION HOOKS
+// ============================================================================
+export const gamificationKeys = {
+  achievements: ['gamification', 'achievements'] as const,
+  userAchievements: ['gamification', 'user-achievements'] as const,
+  points: ['gamification', 'points'] as const,
+  streaks: ['gamification', 'streaks'] as const,
+  leaderboard: (period: string) => ['gamification', 'leaderboard', period] as const,
+  challenges: ['gamification', 'challenges'] as const,
+  userChallenges: ['gamification', 'user-challenges'] as const,
+  communityPosts: ['gamification', 'community-posts'] as const,
+};
+
+export function useAchievements() {
+  return useQuery({
+    queryKey: gamificationKeys.achievements,
+    queryFn: () => api.gamification.listAchievements(),
+  });
+}
+
+export function useUserAchievements() {
+  return useQuery({
+    queryKey: gamificationKeys.userAchievements,
+    queryFn: () => api.gamification.listUserAchievements(),
+  });
+}
+
+export function usePoints() {
+  return useQuery({
+    queryKey: gamificationKeys.points,
+    queryFn: () => api.gamification.getPoints(),
+  });
+}
+
+export function useStreaks() {
+  return useQuery({
+    queryKey: gamificationKeys.streaks,
+    queryFn: () => api.gamification.getStreaks(),
+  });
+}
+
+export function useLeaderboard(period: string = 'weekly') {
+  return useQuery({
+    queryKey: gamificationKeys.leaderboard(period),
+    queryFn: () => api.gamification.getLeaderboard(period),
+  });
+}
+
+export function useChallenges() {
+  return useQuery({
+    queryKey: gamificationKeys.challenges,
+    queryFn: () => api.gamification.listChallenges(),
+  });
+}
+
+export function useUserChallenges() {
+  return useQuery({
+    queryKey: gamificationKeys.userChallenges,
+    queryFn: () => api.gamification.listUserChallenges(),
+  });
+}
+
+export function useJoinChallenge() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (challengeId: string) => api.gamification.joinChallenge(challengeId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: gamificationKeys.userChallenges });
+      toast.success('Challenge joined!');
+    },
+  });
+}
+
+export function useCommunityPosts() {
+  return useQuery({
+    queryKey: gamificationKeys.communityPosts,
+    queryFn: () => api.gamification.listPosts(),
+  });
+}
+
+export function useCreatePost() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.gamification.createPost(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: gamificationKeys.communityPosts });
+      toast.success('Post created');
+    },
+  });
+}
+
+export function useUpvotePost() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (postId: string) => api.gamification.upvotePost(postId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: gamificationKeys.communityPosts });
+    },
+  });
+}
+
+// ============================================================================
+// MARKET INTELLIGENCE HOOKS
+// ============================================================================
+export const marketIntelKeys = {
+  companies: ['market-intel', 'companies'] as const,
+  company: (id: string) => ['market-intel', 'companies', id] as const,
+  salaries: ['market-intel', 'salaries'] as const,
+  trends: ['market-intel', 'trends'] as const,
+  hiringSeasons: ['market-intel', 'hiring-seasons'] as const,
+  heatmap: ['market-intel', 'heatmap'] as const,
+  predictions: ['market-intel', 'predictions'] as const,
+  roi: ['market-intel', 'roi'] as const,
+};
+
+export function useCompanies(search?: string) {
+  return useQuery({
+    queryKey: [...marketIntelKeys.companies, search],
+    queryFn: () => api.marketIntel.listCompanies(search),
+    enabled: !search || search.length >= 2,
+  });
+}
+
+export function useCompany(id: string) {
+  return useQuery({
+    queryKey: marketIntelKeys.company(id),
+    queryFn: () => api.marketIntel.getCompany(id),
+    enabled: !!id,
+  });
+}
+
+export function useSalaryData(params?: Record<string, unknown>) {
+  return useQuery({
+    queryKey: [...marketIntelKeys.salaries, params],
+    queryFn: () => api.marketIntel.listSalaries(params),
+  });
+}
+
+export function useEstimateSalary() {
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.marketIntel.estimateSalary(data),
+  });
+}
+
+export function useIndustryTrends(industry?: string) {
+  return useQuery({
+    queryKey: [...marketIntelKeys.trends, industry],
+    queryFn: () => api.marketIntel.listTrends(industry),
+  });
+}
+
+export function useHiringSeasons(industry?: string) {
+  return useQuery({
+    queryKey: [...marketIntelKeys.hiringSeasons, industry],
+    queryFn: () => api.marketIntel.getHiringSeasons(industry),
+  });
+}
+
+export function useJobHeatmap(country?: string, industry?: string) {
+  return useQuery({
+    queryKey: [...marketIntelKeys.heatmap, country, industry],
+    queryFn: () => api.marketIntel.getHeatmap(country, industry),
+  });
+}
+
+export function useSuccessPrediction() {
+  return useMutation({
+    mutationFn: (applicationId: string) => api.marketIntel.getPrediction(applicationId),
+  });
+}
+
+export function useJobSearchROI() {
+  return useQuery({
+    queryKey: marketIntelKeys.roi,
+    queryFn: () => api.marketIntel.listROI(),
+  });
+}
+
+export function useCalculateROI() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ startDate, endDate }: { startDate: string; endDate: string }) => 
+      api.marketIntel.calculateROI(startDate, endDate),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: marketIntelKeys.roi });
+    },
+  });
+}
+
+// ============================================================================
+// PRIVACY & SECURITY HOOKS
+// ============================================================================
+export const privacyKeys = {
+  exports: ['privacy', 'exports'] as const,
+  twoFA: ['privacy', '2fa'] as const,
+  loginAttempts: ['privacy', 'login-attempts'] as const,
+  encryptedNotes: ['privacy', 'notes'] as const,
+  auditLogs: ['privacy', 'audit-logs'] as const,
+  settings: ['privacy', 'settings'] as const,
+};
+
+export function useDataExports() {
+  return useQuery({
+    queryKey: privacyKeys.exports,
+    queryFn: () => api.privacy.listExports(),
+  });
+}
+
+export function useRequestExport() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.privacy.requestExport(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: privacyKeys.exports });
+      toast.success('Export requested');
+    },
+  });
+}
+
+export function useTwoFAStatus() {
+  return useQuery({
+    queryKey: privacyKeys.twoFA,
+    queryFn: () => api.privacy.get2FAStatus(),
+  });
+}
+
+export function useSetup2FA() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.privacy.setup2FA(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: privacyKeys.twoFA });
+    },
+  });
+}
+
+export function useVerify2FA() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ code, useBackup }: { code: string; useBackup?: boolean }) => 
+      api.privacy.verify2FA(code, useBackup),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: privacyKeys.twoFA });
+      if (data.enabled) {
+        toast.success('Two-factor authentication enabled');
+      }
+    },
+  });
+}
+
+export function useDisable2FA() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => api.privacy.disable2FA(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: privacyKeys.twoFA });
+      toast.success('Two-factor authentication disabled');
+    },
+  });
+}
+
+export function useLoginAttempts() {
+  return useQuery({
+    queryKey: privacyKeys.loginAttempts,
+    queryFn: () => api.privacy.listLoginAttempts(),
+  });
+}
+
+export function useEncryptedNotes() {
+  return useQuery({
+    queryKey: privacyKeys.encryptedNotes,
+    queryFn: () => api.privacy.listEncryptedNotes(),
+  });
+}
+
+export function useCreateEncryptedNote() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.privacy.createEncryptedNote(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: privacyKeys.encryptedNotes });
+      toast.success('Note saved');
+    },
+  });
+}
+
+export function useAuditLogs() {
+  return useQuery({
+    queryKey: privacyKeys.auditLogs,
+    queryFn: () => api.privacy.listAuditLogs(),
+  });
+}
+
+export function usePrivacySettings() {
+  return useQuery({
+    queryKey: privacyKeys.settings,
+    queryFn: () => api.privacy.getPrivacySettings(),
+  });
+}
+
+export function useUpdatePrivacySettings() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (data: Record<string, unknown>) => api.privacy.updatePrivacySettings(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: privacyKeys.settings });
+      toast.success('Privacy settings updated');
+    },
+  });
+}
