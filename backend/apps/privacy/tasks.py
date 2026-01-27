@@ -1,6 +1,7 @@
 """Celery tasks for privacy app."""
 from celery import shared_task
 import logging
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 

@@ -11,10 +11,13 @@ from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 import requests
 
-from .models import User, UserProfile, Resume, PasswordResetToken, EmailVerificationToken
+from .models import (
+    User, UserProfile, Resume, PasswordResetToken, EmailVerificationToken,
+    TutorialProgress, HelpTooltip, SampleDataRequest
+)
 from .serializers import (
-    UserSerializer, UserProfileSerializer, RegisterSerializer, LoginSerializer,
-    TokenSerializer, ChangePasswordSerializer, ForgotPasswordSerializer,
+    UserSerializer, RegisterSerializer, LoginSerializer,
+    ChangePasswordSerializer, ForgotPasswordSerializer,
     ResetPasswordSerializer, GoogleAuthSerializer, GitHubAuthSerializer,
     ResumeSerializer, UserWithProfileSerializer
 )
@@ -254,7 +257,7 @@ class GoogleAuthView(APIView):
                 'user': UserSerializer(user).data
             })
             
-        except ValueError as e:
+        except ValueError:
             return Response(
                 {'error': 'Invalid Google token.'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -377,3 +380,126 @@ class ResumeDetailView(generics.RetrieveUpdateDestroyAPIView):
 class CustomTokenRefreshView(TokenRefreshView):
     """Custom token refresh view."""
     pass
+
+
+class TutorialProgressViewSet(generics.ListCreateAPIView, generics.RetrieveUpdateAPIView):
+    """Manage tutorial progress."""
+    
+    def get_queryset(self):
+        return TutorialProgress.objects.filter(user=self.request.user)
+    
+    def get_serializer_class(self):
+        # Simple serializer for now
+        from rest_framework import serializers
+        class TutorialProgressSerializer(serializers.ModelSerializer):
+            class Meta:
+                model = TutorialProgress
+                fields = ['tutorial_type', 'current_step', 'completed_steps', 'is_completed']
+        return TutorialProgressSerializer
+    
+    def get_object(self):
+        tutorial_type = self.kwargs['tutorial_type']
+        obj, created = TutorialProgress.objects.get_or_create(
+            user=self.request.user,
+            tutorial_type=tutorial_type
+        )
+        return obj
+    
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+
+class HelpTooltipsView(generics.ListAPIView):
+    """Get contextual help tooltips."""
+    
+    def get_queryset(self):
+        user = self.request.user
+        days_since_join = (timezone.now().date() - user.date_joined.date()).days
+        
+        # Filter tooltips based on user experience
+        queryset = HelpTooltip.objects.filter(is_active=True)
+        
+        if days_since_join < 7:  # New user
+            queryset = queryset.filter(show_to_new_users=True)
+        elif self.request.query_params.get('type'):
+            queryset = queryset.filter(tooltip_type=self.request.query_params['type'])
+        
+        return queryset
+    
+    def get_serializer_class(self):
+        from rest_framework import serializers
+        class HelpTooltipSerializer(serializers.ModelSerializer):
+            class Meta:
+                model = HelpTooltip
+                fields = ['identifier', 'title', 'content', 'placement']
+        return HelpTooltipSerializer
+
+
+class GenerateSampleDataView(APIView):
+    """Generate sample data for new users."""
+    
+    def post(self, request):
+        user = request.user
+        
+        # Check if already requested
+        if hasattr(user, 'sample_data_request') and user.sample_data_request.is_completed:
+            return Response({'error': 'Sample data already generated'}, status=400)
+        
+        # Create request record
+        sample_request, created = SampleDataRequest.objects.get_or_create(user=user)
+        
+        if sample_request.is_completed:
+            return Response({'error': 'Sample data already generated'}, status=400)
+        
+        # Generate sample applications
+        from apps.applications.models import JobApplication
+        import random
+        from django.utils import timezone
+        from datetime import timedelta
+        
+        companies = [
+            'Google', 'Microsoft', 'Amazon', 'Apple', 'Meta', 'Netflix', 'Tesla', 'Uber',
+            'Airbnb', 'Spotify', 'Slack', 'Zoom', 'Shopify', 'Stripe', 'Square'
+        ]
+        
+        job_titles = [
+            'Software Engineer', 'Product Manager', 'Data Scientist', 'UX Designer',
+            'DevOps Engineer', 'Frontend Developer', 'Backend Developer', 'Full Stack Developer'
+        ]
+        
+        statuses = ['wishlist', 'applied', 'screening', 'interviewing', 'offer', 'accepted', 'rejected']
+        sources = ['LinkedIn', 'Indeed', 'Company Website', 'Referral', 'Glassdoor']
+        
+        applications_created = 0
+        for i in range(15):  # Create 15 sample applications
+            days_ago = random.randint(0, 90)
+            applied_date = timezone.now() - timedelta(days=days_ago) if random.choice([True, False]) else None
+            
+            status = random.choice(statuses)
+            if status in ['screening', 'interviewing', 'offer', 'accepted', 'rejected'] and not applied_date:
+                applied_date = timezone.now() - timedelta(days=random.randint(1, 30))
+            
+            JobApplication.objects.create(
+                user=user,
+                company_name=random.choice(companies),
+                job_title=random.choice(job_titles),
+                status=status,
+                applied_date=applied_date,
+                source=random.choice(sources),
+                location=random.choice(['San Francisco, CA', 'New York, NY', 'Seattle, WA', 'Austin, TX', 'Remote']),
+                salary_min=random.randint(80000, 150000) if random.choice([True, False]) else None,
+                salary_max=random.randint(100000, 200000) if random.choice([True, False]) else None,
+                notes=f'Sample application {i+1}' if random.choice([True, False]) else ''
+            )
+            applications_created += 1
+        
+        sample_request.applications_created = applications_created
+        sample_request.is_completed = True
+        sample_request.completed_at = timezone.now()
+        sample_request.save()
+        
+        return Response({
+            'success': True,
+            'applications_created': applications_created,
+            'message': f'Created {applications_created} sample applications'
+        })

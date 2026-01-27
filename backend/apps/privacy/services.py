@@ -1,11 +1,10 @@
 """Privacy and security services."""
 import json
-import csv
-import io
 import logging
 from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
+from django.db import models
 
 logger = logging.getLogger(__name__)
 
@@ -128,7 +127,7 @@ class DataExportService:
                 }
                 for c in contacts
             ]
-        except:
+        except Exception:
             return []
     
     def _export_notes(self, user):
@@ -289,7 +288,6 @@ class AccountDeletionService:
     def delete_user_data(user):
         """Delete all user data (GDPR right to be forgotten)."""
         from apps.applications.models import JobApplication
-        from apps.interviews.models import Interview
         from apps.reminders.models import Reminder
         
         # Delete applications and related data
@@ -303,7 +301,7 @@ class AccountDeletionService:
             from apps.networking.models import ProfessionalConnection, Referral
             ProfessionalConnection.objects.filter(user=user).delete()
             Referral.objects.filter(user=user).delete()
-        except:
+        except ImportError:
             pass
         
         # Delete career data
@@ -312,7 +310,7 @@ class AccountDeletionService:
             UserSkill.objects.filter(user=user).delete()
             CareerGoal.objects.filter(user=user).delete()
             PortfolioProject.objects.filter(user=user).delete()
-        except:
+        except ImportError:
             pass
         
         # Delete gamification data
@@ -321,7 +319,7 @@ class AccountDeletionService:
             UserAchievement.objects.filter(user=user).delete()
             UserPoints.objects.filter(user=user).delete()
             UserStreak.objects.filter(user=user).delete()
-        except:
+        except ImportError:
             pass
         
         # Anonymize user
@@ -332,7 +330,3 @@ class AccountDeletionService:
         user.save()
         
         return True
-
-
-# Import models for type hints
-from django.db import models

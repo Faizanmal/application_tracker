@@ -1,10 +1,10 @@
-from rest_framework import viewsets, status
+from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from django.db.models import Count, Sum
+from django.db.models import Count, Sum, Q
 from django.utils import timezone
 from datetime import timedelta
 
@@ -50,7 +50,7 @@ class AchievementViewSet(viewsets.ReadOnlyModelViewSet):
         ).values_list('achievement_id', flat=True)
         
         return Achievement.objects.filter(
-            models.Q(is_hidden=False) | models.Q(id__in=user_earned)
+            Q(is_hidden=False) | Q(id__in=user_earned)
         )
     
     @action(detail=False, methods=['get'])

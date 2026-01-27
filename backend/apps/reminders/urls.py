@@ -17,6 +17,7 @@ urlpatterns = [
     path('upcoming/', views.UpcomingRemindersView.as_view(), name='upcoming'),
     path('today/', views.TodayRemindersView.as_view(), name='today'),
     path('suggestions/', views.SuggestFollowUpView.as_view(), name='suggestions'),
+    path('smart/', views.SmartRemindersView.as_view(), name='smart'),
     
     # Templates
     path('templates/', views.ReminderTemplateListCreateView.as_view(), name='templates'),

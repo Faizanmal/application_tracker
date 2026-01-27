@@ -3,9 +3,11 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import OrderingFilter
 from django.utils import timezone
+from datetime import timedelta
 
 from .models import (
     EmailIntegration,
@@ -180,6 +182,101 @@ class CalendarEventViewSet(viewsets.ModelViewSet):
         return CalendarEvent.objects.filter(
             integration__user=self.request.user
         ).select_related('interview', 'reminder')
+
+
+class UpcomingEventsView(APIView):
+    """Get upcoming calendar events and application deadlines."""
+    
+    def get(self, request):
+        user = request.user
+        days = int(request.query_params.get('days', 30))
+        end_date = timezone.now() + timedelta(days=days)
+        
+        events = []
+        
+        # Calendar events
+        calendar_events = CalendarEvent.objects.filter(
+            integration__user=user,
+            integration__is_active=True,
+            start_time__gte=timezone.now(),
+            start_time__lte=end_date
+        ).select_related('interview', 'reminder')
+        
+        for event in calendar_events:
+            events.append({
+                'id': str(event.id),
+                'type': 'calendar_event',
+                'title': event.title,
+                'description': event.description,
+                'start_time': event.start_time,
+                'end_time': event.end_time,
+                'location': event.location,
+                'interview': {
+                    'id': str(event.interview.id),
+                    'company_name': event.interview.application.company_name,
+                    'job_title': event.interview.application.job_title
+                } if event.interview else None,
+                'reminder': {
+                    'id': str(event.reminder.id),
+                    'title': event.reminder.title
+                } if event.reminder else None
+            })
+        
+        # Interview events (not synced to calendar)
+        interviews = Interview.objects.filter(
+            application__user=user,
+            scheduled_at__gte=timezone.now(),
+            scheduled_at__lte=end_date,
+            status__in=['scheduled', 'rescheduled']
+        ).select_related('application')
+        
+        for interview in interviews:
+            # Check if already in calendar events
+            if not CalendarEvent.objects.filter(interview=interview).exists():
+                events.append({
+                    'id': str(interview.id),
+                    'type': 'interview',
+                    'title': f'Interview: {interview.application.company_name}',
+                    'description': interview.title or f'Interview with {interview.application.company_name}',
+                    'start_time': interview.scheduled_at,
+                    'end_time': interview.scheduled_at + timedelta(minutes=interview.duration_minutes),
+                    'location': interview.location,
+                    'interview': {
+                        'id': str(interview.id),
+                        'company_name': interview.application.company_name,
+                        'job_title': interview.application.job_title
+                    },
+                    'reminder': None
+                })
+        
+        # Application deadlines
+        deadlines = JobApplication.objects.filter(
+            user=user,
+            deadline__gte=timezone.now(),
+            deadline__lte=end_date,
+            status__in=['applied', 'screening']
+        )
+        
+        for app in deadlines:
+            events.append({
+                'id': str(app.id),
+                'type': 'deadline',
+                'title': f'Deadline: {app.company_name}',
+                'description': f'Application deadline for {app.job_title} at {app.company_name}',
+                'start_time': app.deadline,
+                'end_time': app.deadline,
+                'location': '',
+                'interview': None,
+                'reminder': None
+            })
+        
+        # Sort events by start time
+        events.sort(key=lambda x: x['start_time'])
+        
+        return Response({
+            'events': events,
+            'total': len(events)
+        })
 
 
 class LinkedInIntegrationViewSet(viewsets.ModelViewSet):

@@ -1,17 +1,20 @@
-from rest_framework import generics, status, filters
+from rest_framework import generics, status, filters, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Q
 from django.conf import settings
 
-from .models import JobApplication, ApplicationTimeline, ApplicationTag, ApplicationDocument
+from .models import (
+    JobApplication, ApplicationTimeline, ApplicationTag, ApplicationDocument,
+    ApplicationShare, ApplicationComment, ProgressUpdate
+)
 from .serializers import (
     JobApplicationListSerializer, JobApplicationDetailSerializer,
     ApplicationTimelineSerializer, ApplicationTagSerializer,
     ApplicationDocumentSerializer, ApplicationStatusUpdateSerializer,
-    BulkStatusUpdateSerializer, KanbanOrderSerializer
+    BulkStatusUpdateSerializer, KanbanOrderSerializer,
+    ApplicationShareSerializer, ApplicationCommentSerializer, ProgressUpdateSerializer
 )
 from .filters import JobApplicationFilter
 
@@ -354,3 +357,183 @@ class ApplicationExportView(APIView):
             return response
         
         return Response({'error': 'Invalid format'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ApplicationShareViewSet(viewsets.ModelViewSet):
+    """ViewSet for application sharing."""
+    serializer_class = ApplicationShareSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return ApplicationShare.objects.filter(
+            application__user=self.request.user
+        ).select_related('application', 'shared_by', 'shared_with_user')
+    
+    def perform_create(self, serializer):
+        serializer.save(shared_by=self.request.user)
+
+
+class ApplicationCommentViewSet(viewsets.ModelViewSet):
+    """ViewSet for application comments."""
+    serializer_class = ApplicationCommentSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return ApplicationComment.objects.filter(
+            application__user=self.request.user
+        ).select_related('author', 'share', 'application')
+    
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+class ProgressUpdateViewSet(viewsets.ModelViewSet):
+    """ViewSet for progress updates."""
+    serializer_class = ProgressUpdateSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def get_queryset(self):
+        return ProgressUpdate.objects.filter(
+            application__user=self.request.user
+        ).select_related('author', 'application')
+    
+    def perform_create(self, serializer):
+        serializer.save(author=self.request.user)
+
+
+class QuickActionsView(APIView):
+    """Handle quick actions for applications."""
+    
+    def post(self, request, action):
+        user = request.user
+        application_id = request.data.get('application_id')
+        
+        try:
+            application = JobApplication.objects.get(id=application_id, user=user)
+        except JobApplication.DoesNotExist:
+            return Response({'error': 'Application not found'}, status=status.HTTP_404_NOT_FOUND)
+        
+        if action == 'duplicate':
+            return self._duplicate_application(application)
+        elif action == 'move_to_wishlist':
+            return self._move_to_wishlist(application)
+        elif action == 'archive':
+            return self._archive_application(application)
+        elif action == 'favorite':
+            return self._toggle_favorite(application)
+        else:
+            return Response({'error': 'Invalid action'}, status=status.HTTP_400_BAD_REQUEST)
+    
+    def _duplicate_application(self, application):
+        """Duplicate an application."""
+        new_application = JobApplication.objects.create(
+            user=application.user,
+            company_name=application.company_name,
+            company_website=application.company_website,
+            company_logo=application.company_logo,
+            company_size=application.company_size,
+            company_industry=application.company_industry,
+            job_title=f"{application.job_title} (Copy)",
+            job_link=application.job_link,
+            job_description=application.job_description,
+            job_type=application.job_type,
+            work_location=application.work_location,
+            location=application.location,
+            salary_min=application.salary_min,
+            salary_max=application.salary_max,
+            salary_currency=application.salary_currency,
+            status='wishlist',  # Start as wishlist
+            notes=application.notes,
+            contact_name=application.contact_name,
+            contact_email=application.contact_email,
+            contact_phone=application.contact_phone,
+            contact_linkedin=application.contact_linkedin,
+            source=application.source,
+            referral=application.referral
+        )
+        
+        # Copy tags
+        new_application.tags.set(application.tags.all())
+        
+        return Response({
+            'success': True,
+            'application_id': str(new_application.id),
+            'message': 'Application duplicated successfully'
+        })
+    
+    def _move_to_wishlist(self, application):
+        """Move application to wishlist."""
+        old_status = application.status
+        application.status = 'wishlist'
+        application.status_order = 0
+        application.save()
+        
+        # Create timeline entry
+        ApplicationTimeline.objects.create(
+            application=application,
+            event_type='status_change',
+            title=f'Status changed from {old_status} to wishlist',
+            old_status=old_status,
+            new_status='wishlist'
+        )
+        
+        return Response({
+            'success': True,
+            'message': 'Application moved to wishlist'
+        })
+    
+    def _archive_application(self, application):
+        """Archive an application."""
+        application.is_archived = True
+        application.save()
+        
+        return Response({
+            'success': True,
+            'message': 'Application archived'
+        })
+    
+    def _toggle_favorite(self, application):
+        """Toggle favorite status."""
+        application.is_favorite = not application.is_favorite
+        application.save()
+        
+        action = 'added to' if application.is_favorite else 'removed from'
+        return Response({
+            'success': True,
+            'is_favorite': application.is_favorite,
+            'message': f'Application {action} favorites'
+        })
+
+
+class RapidApplicationCreateView(APIView):
+    """Rapid application creation with minimal fields."""
+    
+    def post(self, request):
+        user = request.user
+        
+        # Validate minimum required fields
+        company_name = request.data.get('company_name')
+        job_title = request.data.get('job_title')
+        
+        if not company_name or not job_title:
+            return Response({
+                'error': 'Company name and job title are required'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # Create application with defaults
+        application = JobApplication.objects.create(
+            user=user,
+            company_name=company_name,
+            job_title=job_title,
+            status='wishlist',
+            source=request.data.get('source', ''),
+            location=request.data.get('location', ''),
+            job_link=request.data.get('job_link', ''),
+            notes=request.data.get('notes', '')
+        )
+        
+        return Response({
+            'success': True,
+            'application_id': str(application.id),
+            'message': 'Application created successfully'
+        }, status=status.HTTP_201_CREATED)

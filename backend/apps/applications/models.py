@@ -219,3 +219,154 @@ class ApplicationDocument(models.Model):
     
     def __str__(self):
         return f"{self.name} - {self.application.job_title}"
+
+
+class ApplicationShare(models.Model):
+    """Sharing applications with mentors or accountability partners."""
+    
+    class ShareType(models.TextChoices):
+        MENTOR = 'mentor', 'Mentor'
+        ACCOUNTABILITY = 'accountability', 'Accountability Partner'
+        NETWORKING = 'networking', 'Networking'
+    
+    class PermissionLevel(models.TextChoices):
+        VIEW = 'view', 'View Only'
+        COMMENT = 'comment', 'View and Comment'
+        EDIT = 'edit', 'Full Edit'
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    application = models.ForeignKey(
+        JobApplication,
+        on_delete=models.CASCADE,
+        related_name='shares'
+    )
+    
+    # Who shared
+    shared_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='shared_applications'
+    )
+    
+    # Who it's shared with
+    shared_with_email = models.EmailField()
+    shared_with_user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='received_application_shares'
+    )
+    
+    share_type = models.CharField(
+        max_length=20,
+        choices=ShareType.choices,
+        default=ShareType.MENTOR
+    )
+    permission_level = models.CharField(
+        max_length=20,
+        choices=PermissionLevel.choices,
+        default=PermissionLevel.VIEW
+    )
+    
+    # Share settings
+    can_view_progress = models.BooleanField(default=True)
+    can_view_notes = models.BooleanField(default=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    
+    # Status
+    is_accepted = models.BooleanField(default=False)
+    accepted_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    
+    # Message
+    message = models.TextField(blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ['application', 'shared_with_email']
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"{self.application.job_title} shared with {self.shared_with_email}"
+
+
+class ApplicationComment(models.Model):
+    """Comments on shared applications."""
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    application = models.ForeignKey(
+        JobApplication,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    share = models.ForeignKey(
+        ApplicationShare,
+        on_delete=models.CASCADE,
+        related_name='comments'
+    )
+    
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='application_comments'
+    )
+    
+    content = models.TextField()
+    
+    # Parent comment for threading
+    parent = models.ForeignKey(
+        'self',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True,
+        related_name='replies'
+    )
+    
+    # Metadata
+    is_private = models.BooleanField(default=False)  # Only visible to sharer and commenter
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['created_at']
+    
+    def __str__(self):
+        return f"Comment by {self.author.email} on {self.application.job_title}"
+
+
+class ProgressUpdate(models.Model):
+    """Progress updates for shared applications."""
+    
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    application = models.ForeignKey(
+        JobApplication,
+        on_delete=models.CASCADE,
+        related_name='progress_updates'
+    )
+    
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='progress_updates'
+    )
+    
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    
+    # Progress metrics
+    status_change = models.CharField(max_length=20, blank=True)
+    days_since_last_update = models.PositiveIntegerField(default=0)
+    
+    # Visibility
+    is_public = models.BooleanField(default=True)  # Visible to all shares
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+    
+    def __str__(self):
+        return f"Progress: {self.title} - {self.application.job_title}"

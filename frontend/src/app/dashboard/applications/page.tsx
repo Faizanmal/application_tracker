@@ -20,6 +20,10 @@ import {
   Building2,
   Briefcase,
   Target,
+  CheckSquare,
+  Mic,
+  Download,
+  Upload,
 } from 'lucide-react';
 import {
   DndContext,
@@ -46,6 +50,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -70,6 +75,10 @@ import {
   useToggleFavorite,
 } from '@/hooks/use-queries';
 import { AnimatedNumber } from '@/components/ui/animated-elements';
+import { BulkActionsBar, useBulkSelection } from '@/components/applications/bulk-actions';
+import { AdvancedSearchPanel } from '@/components/applications/advanced-search';
+import { VoiceSearchButton, VoiceDictationButton } from '@/components/voice/voice-features';
+import { ImportExportMenu } from '@/components/applications/import-export';
 import type { JobApplication, ApplicationStatus } from '@/types';
 
 const STATUS_CONFIG: Record<ApplicationStatus, { label: string; color: string; bgColor: string; gradient: string }> = {
@@ -332,6 +341,17 @@ export default function ApplicationsPage() {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [applicationToDelete, setApplicationToDelete] = useState<string | null>(null);
   const [viewMode, setViewMode] = useState<'kanban' | 'list'>('kanban');
+  const [showAdvancedSearch, setShowAdvancedSearch] = useState(false);
+  
+  // Bulk selection
+  const {
+    selectedIds,
+    isSelectionMode,
+    toggleSelection,
+    selectAll,
+    clearSelection,
+    toggleSelectionMode,
+  } = useBulkSelection();
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -524,37 +544,79 @@ export default function ApplicationsPage() {
         </div>
 
         {/* Search & Filters */}
-        <div className="p-4 flex flex-col sm:flex-row gap-4 bg-muted/30">
-          <div className="relative flex-1">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search by company or job title..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 bg-white shadow-sm border-muted/50"
+        <div className="p-4 flex flex-col gap-4 bg-muted/30">
+          {/* Bulk Actions Bar - shows when selection mode is active */}
+          {isSelectionMode && (
+            <BulkActionsBar
+              selectedCount={selectedIds.size}
+              onClearSelection={clearSelection}
+              onExitSelectionMode={toggleSelectionMode}
             />
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="icon" className="shadow-sm">
-              <Filter className="h-4 w-4" />
-            </Button>
-            <div className="flex border rounded-lg shadow-sm overflow-hidden">
-              <Button
-                variant={viewMode === 'kanban' ? 'secondary' : 'ghost'}
-                size="icon"
-                className="rounded-none border-0"
-                onClick={() => setViewMode('kanban')}
+          )}
+          
+          {/* Advanced Search Panel */}
+          {showAdvancedSearch && (
+            <AdvancedSearchPanel 
+              onSearch={(filters) => {
+                // Apply filters to search
+                console.log('Advanced search filters:', filters);
+              }}
+              onClose={() => setShowAdvancedSearch(false)}
+            />
+          )}
+          
+          <div className="flex flex-col sm:flex-row gap-4">
+            <div className="relative flex-1 flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Search by company or job title..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 bg-white shadow-sm border-muted/50"
+                />
+              </div>
+              <VoiceSearchButton 
+                onResult={(text) => setSearchQuery(text)}
+              />
+            </div>
+            <div className="flex gap-2">
+              <Button 
+                variant={showAdvancedSearch ? 'secondary' : 'outline'} 
+                size="icon" 
+                className="shadow-sm"
+                onClick={() => setShowAdvancedSearch(!showAdvancedSearch)}
               >
-                <Grid3X3 className="h-4 w-4" />
+                <Filter className="h-4 w-4" />
               </Button>
               <Button
-                variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                variant={isSelectionMode ? 'secondary' : 'outline'}
                 size="icon"
-                className="rounded-none border-0"
-                onClick={() => setViewMode('list')}
+                className="shadow-sm"
+                onClick={toggleSelectionMode}
+                title="Bulk select"
               >
-                <List className="h-4 w-4" />
+                <CheckSquare className="h-4 w-4" />
               </Button>
+              <ImportExportMenu />
+              <div className="flex border rounded-lg shadow-sm overflow-hidden">
+                <Button
+                  variant={viewMode === 'kanban' ? 'secondary' : 'ghost'}
+                  size="icon"
+                  className="rounded-none border-0"
+                  onClick={() => setViewMode('kanban')}
+                >
+                  <Grid3X3 className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={viewMode === 'list' ? 'secondary' : 'ghost'}
+                  size="icon"
+                  className="rounded-none border-0"
+                  onClick={() => setViewMode('list')}
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>

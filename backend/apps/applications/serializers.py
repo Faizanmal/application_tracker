@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from django.db import transaction
-from .models import JobApplication, ApplicationTimeline, ApplicationTag, ApplicationDocument
+from .models import (
+    JobApplication, ApplicationTimeline, ApplicationTag, ApplicationDocument,
+    ApplicationShare, ApplicationComment, ProgressUpdate
+)
 from apps.users.serializers import ResumeSerializer
 
 
@@ -60,7 +63,6 @@ class JobApplicationListSerializer(serializers.ModelSerializer):
         return obj.interviews.count() if hasattr(obj, 'interviews') else 0
     
     def get_next_interview(self, obj):
-        from apps.interviews.models import Interview
         from django.utils import timezone
         
         next_interview = obj.interviews.filter(
@@ -203,3 +205,64 @@ class KanbanOrderSerializer(serializers.Serializer):
             child=serializers.CharField()
         )
     )
+
+
+class ApplicationShareSerializer(serializers.ModelSerializer):
+    """Serializer for application sharing."""
+    
+    shared_by_name = serializers.CharField(source='shared_by.get_full_name', read_only=True)
+    application_title = serializers.CharField(source='application.job_title', read_only=True)
+    company_name = serializers.CharField(source='application.company_name', read_only=True)
+    
+    class Meta:
+        model = ApplicationShare
+        fields = [
+            'id', 'application', 'application_title', 'company_name',
+            'shared_by', 'shared_by_name', 'shared_with_email', 'shared_with_user',
+            'share_type', 'permission_level', 'can_view_progress', 'can_view_notes',
+            'expires_at', 'is_accepted', 'accepted_at', 'is_active', 'message',
+            'created_at'
+        ]
+        read_only_fields = ['id', 'shared_by', 'created_at', 'accepted_at']
+    
+    def create(self, validated_data):
+        validated_data['shared_by'] = self.context['request'].user
+        return super().create(validated_data)
+
+
+class ApplicationCommentSerializer(serializers.ModelSerializer):
+    """Serializer for application comments."""
+    
+    author_name = serializers.CharField(source='author.get_full_name', read_only=True)
+    replies = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = ApplicationComment
+        fields = [
+            'id', 'application', 'share', 'author', 'author_name',
+            'content', 'parent', 'replies', 'is_private', 'created_at', 'updated_at'
+        ]
+        read_only_fields = ['id', 'author', 'created_at', 'updated_at']
+    
+    def get_replies(self, obj):
+        if obj.replies.exists():
+            return ApplicationCommentSerializer(obj.replies.all(), many=True, context=self.context).data
+        return []
+    
+    def create(self, validated_data):
+        validated_data['author'] = self.context['request'].user
+        return super().create(validated_data)
+
+
+class ProgressUpdateSerializer(serializers.ModelSerializer):
+    """Serializer for progress updates."""
+    
+    author_name = serializers.CharField(source='author.get_full_name', read_only=True)
+    
+    class Meta:
+        model = ProgressUpdate
+        fields = [
+            'id', 'application', 'author', 'author_name', 'title', 'content',
+            'status_change', 'days_since_last_update', 'is_public', 'created_at'
+        ]
+        read_only_fields = ['id', 'author', 'created_at']

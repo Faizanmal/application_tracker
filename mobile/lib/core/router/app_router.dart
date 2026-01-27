@@ -17,12 +17,15 @@ import '../../ui/screens/reminders/reminders_screen.dart';
 import '../../ui/screens/analytics/analytics_screen.dart';
 import '../../ui/screens/settings/settings_screen.dart';
 import '../../ui/screens/settings/profile_screen.dart';
+import '../../ui/screens/settings/accessibility_screen.dart';
 import '../../ui/screens/networking/networking_screen.dart';
 import '../../ui/screens/career/career_screen.dart';
 import '../../ui/screens/gamification/gamification_screen.dart';
 import '../../ui/screens/market_intel/market_intel_screen.dart';
 import '../../ui/screens/privacy/privacy_screen.dart';
 import '../../ui/screens/integrations/integrations_screen.dart';
+import '../../ui/screens/templates_screen.dart';
+import '../../ui/screens/import_export_screen.dart';
 import '../../ui/widgets/main_scaffold.dart';
 
 /// Router configuration
@@ -179,6 +182,18 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/integrations',
         builder: (context, state) => const IntegrationsScreen(),
+      ),
+      GoRoute(
+        path: '/templates',
+        builder: (context, state) => const TemplateManagerScreen(),
+      ),
+      GoRoute(
+        path: '/import-export',
+        builder: (context, state) => const ImportExportScreen(),
+      ),
+      GoRoute(
+        path: '/accessibility',
+        builder: (context, state) => const AccessibilityScreen(),
       ),
     ],
     errorBuilder: (context, state) => Scaffold(

@@ -127,7 +127,6 @@ class PredictionService:
     def predict_success(self, application):
         """Generate success prediction for an application."""
         from .models import SuccessPrediction
-        from apps.users.models import UserProfile
         
         user = application.user
         
