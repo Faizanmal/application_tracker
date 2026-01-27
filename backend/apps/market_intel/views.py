@@ -6,7 +6,6 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 from django.db.models import Avg, Count, Q
 from django.utils import timezone
-from datetime import timedelta
 
 from .models import (
     CompanyProfile,

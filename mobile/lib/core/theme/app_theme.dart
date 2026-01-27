@@ -401,4 +401,98 @@ class AppTheme {
       ),
     );
   }
+
+  // High contrast colors
+  static const Color highContrastPrimary = Color(0xFF0000FF);
+  static const Color highContrastBackground = Color(0xFFFFFFFF);
+  static const Color highContrastSurface = Color(0xFFFFFFFF);
+  static const Color highContrastText = Color(0xFF000000);
+  static const Color highContrastDarkBackground = Color(0xFF000000);
+  static const Color highContrastDarkText = Color(0xFFFFFFFF);
+
+  /// High contrast light theme
+  static ThemeData get highContrastLightTheme {
+    return lightTheme.copyWith(
+      colorScheme: const ColorScheme.light(
+        primary: highContrastPrimary,
+        secondary: Color(0xFF0000CC),
+        surface: highContrastSurface,
+        error: Color(0xFFCC0000),
+        onPrimary: Colors.white,
+        onSecondary: Colors.white,
+        onSurface: highContrastText,
+        onError: Colors.white,
+      ),
+      scaffoldBackgroundColor: highContrastBackground,
+      cardTheme: CardThemeData(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Colors.black, width: 2),
+        ),
+        color: highContrastSurface,
+      ),
+      dividerTheme: const DividerThemeData(
+        color: Colors.black,
+        thickness: 2,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.black, width: 2),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.black, width: 2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: highContrastPrimary, width: 3),
+        ),
+      ),
+    );
+  }
+
+  /// High contrast dark theme
+  static ThemeData get highContrastDarkTheme {
+    return darkTheme.copyWith(
+      colorScheme: const ColorScheme.dark(
+        primary: Color(0xFF6699FF),
+        secondary: Color(0xFF9966FF),
+        surface: highContrastDarkBackground,
+        error: Color(0xFFFF6666),
+        onPrimary: Colors.black,
+        onSecondary: Colors.black,
+        onSurface: highContrastDarkText,
+        onError: Colors.black,
+      ),
+      scaffoldBackgroundColor: highContrastDarkBackground,
+      cardTheme: CardThemeData(
+        elevation: 0,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+          side: const BorderSide(color: Colors.white, width: 2),
+        ),
+        color: highContrastDarkBackground,
+      ),
+      dividerTheme: const DividerThemeData(
+        color: Colors.white,
+        thickness: 2,
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.white, width: 2),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.white, width: 2),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Color(0xFF6699FF), width: 3),
+        ),
+      ),
+    );
+  }
 }

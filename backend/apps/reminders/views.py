@@ -10,6 +10,8 @@ from .serializers import (
     ReminderSerializer, NotificationSerializer, ReminderTemplateSerializer,
     SnoozeReminderSerializer, BulkNotificationUpdateSerializer
 )
+from apps.applications.models import JobApplication
+from apps.interviews.models import Interview
 
 
 class ReminderListCreateView(generics.ListCreateAPIView):
@@ -243,3 +245,137 @@ class ReminderTemplateDetailView(generics.RetrieveUpdateDestroyAPIView):
     
     def get_queryset(self):
         return ReminderTemplate.objects.filter(user=self.request.user)
+
+
+class SmartRemindersView(APIView):
+    """Generate smart, context-aware reminders based on application status."""
+    
+    def get(self, request):
+        user = request.user
+        now = timezone.now()
+        
+        smart_reminders = []
+        
+        # 1. Follow-up reminders for applications without response
+        applied_no_response = JobApplication.objects.filter(
+            user=user,
+            applied_date__isnull=False,
+            response_date__isnull=True,
+            status__in=['applied', 'screening']
+        ).exclude(
+            reminders__reminder_type=Reminder.ReminderType.FOLLOW_UP,
+            reminders__status__in=['pending', 'snoozed']
+        )
+        
+        for app in applied_no_response:
+            days_since_applied = (now.date() - app.applied_date).days
+            if days_since_applied >= 7:  # After 1 week
+                smart_reminders.append({
+                    'type': 'follow_up',
+                    'application_id': str(app.id),
+                    'title': f'Follow up with {app.company_name}',
+                    'description': f"It's been {days_since_applied} days since you applied to {app.job_title} at {app.company_name}. Consider sending a follow-up email.",
+                    'suggested_schedule': now + timedelta(days=1),  # Tomorrow
+                    'priority': 'medium'
+                })
+            elif days_since_applied >= 14:  # After 2 weeks
+                smart_reminders.append({
+                    'type': 'follow_up',
+                    'application_id': str(app.id),
+                    'title': f'Follow up with {app.company_name} (Urgent)',
+                    'description': f"It's been {days_since_applied} days since you applied to {app.job_title} at {app.company_name}. This is getting urgent.",
+                    'suggested_schedule': now + timedelta(hours=4),  # In 4 hours
+                    'priority': 'high'
+                })
+        
+        # 2. Interview preparation reminders
+        upcoming_interviews = Interview.objects.filter(
+            application__user=user,
+            scheduled_at__gte=now,
+            scheduled_at__lte=now + timedelta(days=7),
+            status=Interview.Status.SCHEDULED
+        ).exclude(
+            reminders__reminder_type=Reminder.ReminderType.INTERVIEW_PREP,
+            reminders__status__in=['pending', 'snoozed']
+        )
+        
+        for interview in upcoming_interviews:
+            hours_until = int((interview.scheduled_at - now).total_seconds() / 3600)
+            if hours_until <= 24:  # Within 24 hours
+                smart_reminders.append({
+                    'type': 'interview_prep',
+                    'application_id': str(interview.application.id),
+                    'interview_id': str(interview.id),
+                    'title': f'Prepare for interview at {interview.application.company_name}',
+                    'description': f'Your interview for {interview.application.job_title} is in {hours_until} hours. Review your preparation notes.',
+                    'suggested_schedule': now + timedelta(hours=2),
+                    'priority': 'high'
+                })
+        
+        # 3. Thank you note reminders
+        recent_interviews = Interview.objects.filter(
+            application__user=user,
+            scheduled_at__lte=now,
+            scheduled_at__gte=now - timedelta(days=1),
+            status=Interview.Status.COMPLETED
+        ).exclude(
+            reminders__reminder_type=Reminder.ReminderType.SEND_THANK_YOU,
+            reminders__status__in=['pending', 'snoozed']
+        )
+        
+        for interview in recent_interviews:
+            smart_reminders.append({
+                'type': 'thank_you',
+                'application_id': str(interview.application.id),
+                'interview_id': str(interview.id),
+                'title': f'Send thank you to {interview.application.company_name}',
+                'description': f'Send a thank you note to {interview.interviewer_name or "the interviewer"} at {interview.application.company_name}.',
+                'suggested_schedule': now + timedelta(hours=4),
+                'priority': 'medium'
+            })
+        
+        # 4. Status check reminders
+        need_status_check = JobApplication.objects.filter(
+            user=user,
+            applied_date__isnull=False,
+            response_date__isnull=True,
+            status__in=['applied', 'screening'],
+            updated_at__lte=now - timedelta(days=30)
+        ).exclude(
+            reminders__reminder_type=Reminder.ReminderType.CHECK_STATUS,
+            reminders__status__in=['pending', 'snoozed']
+        )
+        
+        for app in need_status_check:
+            days_since_update = (now.date() - app.updated_at.date()).days
+            smart_reminders.append({
+                'type': 'status_check',
+                'application_id': str(app.id),
+                'title': f'Check status at {app.company_name}',
+                'description': f"It's been {days_since_update} days since your last update on {app.job_title} at {app.company_name}. Check for any status updates.",
+                'suggested_schedule': now + timedelta(days=3),
+                'priority': 'low'
+            })
+        
+        return Response({
+            'smart_reminders': smart_reminders,
+            'total_suggestions': len(smart_reminders)
+        })
+    
+    def post(self, request):
+        """Create reminders from smart suggestions."""
+        user = request.user
+        reminder_data = request.data
+        
+        # Create the reminder
+        reminder = Reminder.objects.create(
+            user=user,
+            application_id=reminder_data.get('application_id'),
+            interview_id=reminder_data.get('interview_id'),
+            reminder_type=reminder_data['type'],
+            title=reminder_data['title'],
+            description=reminder_data['description'],
+            scheduled_at=reminder_data['scheduled_at']
+        )
+        
+        return Response(ReminderSerializer(reminder).data, status=status.HTTP_201_CREATED)

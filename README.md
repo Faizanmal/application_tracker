@@ -1,6 +1,6 @@
-# JobScouter
+# Application Tracker
 
-JobScouter is a comprehensive job application tracking platform with web and mobile applications. It helps users manage their job applications, track interviews, set reminders, and analyze their job search progress.
+Application Tracker is a comprehensive job application tracking platform with web and mobile applications. It helps users manage their job applications, track interviews, set reminders, and analyze their job search progress.
 
 ## Project Structure
 
@@ -63,13 +63,7 @@ JobScouter is a comprehensive job application tracking platform with web and mob
    npm install
    ```
 
-3. Set up environment variables:
-   ```bash
-   cp .env.example .env.local
-   # Edit .env.local with your configuration
-   ```
-
-4. Start the development server:
+3. Start the development server:
    ```bash
    npm run dev
    ```
@@ -98,6 +92,11 @@ JobScouter is a comprehensive job application tracking platform with web and mob
 - Reminder system
 - Analytics and insights
 - AI-powered features
+- Gamification and achievements
+- Career guidance
+- Market intelligence
+- Networking tools
+- Privacy controls
 - Subscription management
 - Cross-platform support (Web, iOS, Android)
 

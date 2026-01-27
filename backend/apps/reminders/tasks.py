@@ -111,7 +111,7 @@ def process_snoozed_reminders():
 @shared_task
 def create_auto_reminders():
     """Create automatic follow-up reminders for applications."""
-    from .models import Reminder, ReminderTemplate
+    from .models import Reminder
     from apps.applications.models import JobApplication
     from datetime import timedelta
     

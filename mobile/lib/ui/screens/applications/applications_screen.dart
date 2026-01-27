@@ -7,6 +7,10 @@ import '../../../core/theme/app_theme.dart';
 import '../../../providers/providers.dart';
 import '../../widgets/application_list_item.dart';
 import '../../widgets/loading_overlay.dart';
+import '../../widgets/bulk_actions.dart';
+import '../../widgets/advanced_search.dart';
+import '../../widgets/voice_features.dart';
+import '../import_export_screen.dart';
 
 /// Applications list screen
 class ApplicationsScreen extends ConsumerStatefulWidget {
@@ -21,6 +25,7 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen>
   late TabController _tabController;
   final _searchController = TextEditingController();
   String? _selectedStatus;
+  bool _showAdvancedSearch = false;
 
   final _statuses = [
     null, // All
@@ -67,13 +72,69 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen>
     );
   }
 
+  void _handleVoiceCommand(String command) {
+    final lowerCommand = command.toLowerCase();
+    if (lowerCommand.contains('new') || lowerCommand.contains('add') || lowerCommand.contains('create')) {
+      context.push('/applications/new');
+    } else if (lowerCommand.contains('search')) {
+      final searchTerm = lowerCommand.replaceFirst('search', '').trim();
+      if (searchTerm.isNotEmpty) {
+        _searchController.text = searchTerm;
+        _onSearch(searchTerm);
+      }
+    } else if (lowerCommand.contains('filter')) {
+      setState(() => _showAdvancedSearch = true);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(applicationsProvider);
+    final isSelectionMode = ref.watch(selectionModeProvider);
+    final selectedApps = ref.watch(selectedApplicationsProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Applications'),
+        title: isSelectionMode 
+            ? Text('${selectedApps.length} selected')
+            : const Text('Applications'),
+        leading: isSelectionMode
+            ? IconButton(
+                icon: const Icon(Icons.close),
+                onPressed: () {
+                  ref.read(selectionModeProvider.notifier).state = false;
+                  ref.read(selectedApplicationsProvider.notifier).state = {};
+                },
+              )
+            : null,
+        actions: [
+          if (!isSelectionMode) ...[
+            IconButton(
+              icon: Icon(_showAdvancedSearch 
+                  ? Icons.filter_list_off 
+                  : Icons.filter_list),
+              tooltip: 'Advanced Search',
+              onPressed: () {
+                setState(() => _showAdvancedSearch = !_showAdvancedSearch);
+              },
+            ),
+            VoiceCommandButton(
+              onCommand: (command) {
+                _handleVoiceCommand(command);
+              },
+            ),
+            ImportExportButton(
+              onImportComplete: () => _loadApplications(),
+            ),
+            IconButton(
+              icon: const Icon(Icons.checklist),
+              tooltip: 'Bulk Select',
+              onPressed: () {
+                ref.read(selectionModeProvider.notifier).state = true;
+              },
+            ),
+          ],
+        ],
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
@@ -85,32 +146,53 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen>
       ),
       body: Column(
         children: [
-          // Search bar
+          // Advanced search panel (collapsible)
+          if (_showAdvancedSearch) ...[
+            const AdvancedSearchPanel(),
+            const Divider(),
+          ],
+          // Search bar with voice
           Padding(
             padding: const EdgeInsets.all(16),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search applications...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: _searchController.text.isNotEmpty
-                    ? IconButton(
-                        icon: const Icon(Icons.clear),
-                        onPressed: () {
-                          _searchController.clear();
-                          _onSearch('');
-                        },
-                      )
-                    : null,
-                filled: true,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide.none,
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _searchController,
+                    decoration: InputDecoration(
+                      hintText: 'Search applications...',
+                      prefixIcon: const Icon(Icons.search),
+                      suffixIcon: _searchController.text.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(Icons.clear),
+                              onPressed: () {
+                                _searchController.clear();
+                                _onSearch('');
+                              },
+                            )
+                          : null,
+                      filled: true,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                    ),
+                    onSubmitted: _onSearch,
+                  ),
                 ),
-              ),
-              onSubmitted: _onSearch,
+                const SizedBox(width: 8),
+                VoiceInputField(
+                  onResult: (text) {
+                    _searchController.text = text;
+                    _onSearch(text);
+                  },
+                ),
+              ],
             ),
           ),
+
+          // Bulk actions bar when in selection mode
+          if (isSelectionMode) const BulkActionsBar(),
 
           // Applications list
           Expanded(
@@ -141,6 +223,35 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen>
                             }
 
                             final application = state.applications[index];
+                            final isSelected = selectedApps.contains(application.id);
+                            
+                            if (isSelectionMode) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 8),
+                                child: SelectableApplicationCard(
+                                  applicationId: application.id,
+                                  isSelected: isSelected,
+                                  child: ApplicationListItem(
+                                    application: application,
+                                    onTap: () {
+                                      // Toggle selection
+                                      final current = ref.read(selectedApplicationsProvider);
+                                      if (current.contains(application.id)) {
+                                        ref.read(selectedApplicationsProvider.notifier).state = 
+                                            {...current}..remove(application.id);
+                                      } else {
+                                        ref.read(selectedApplicationsProvider.notifier).state = 
+                                            {...current, application.id};
+                                      }
+                                    },
+                                    onStarToggle: () => ref
+                                        .read(applicationsProvider.notifier)
+                                        .toggleStarred(application.id),
+                                  ),
+                                ),
+                              );
+                            }
+                            
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 8),
                               child: ApplicationListItem(
@@ -159,11 +270,14 @@ class _ApplicationsScreenState extends ConsumerState<ApplicationsScreen>
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => context.push('/applications/new'),
-        icon: const Icon(Icons.add),
-        label: const Text('Add'),
-      ),
+      // Hide FAB when in selection mode
+      floatingActionButton: isSelectionMode 
+          ? null
+          : FloatingActionButton.extended(
+              onPressed: () => context.push('/applications/new'),
+              icon: const Icon(Icons.add),
+              label: const Text('Add'),
+            ),
     );
   }
 

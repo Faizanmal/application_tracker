@@ -6,6 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import '../../../core/theme/app_theme.dart';
 import '../../../providers/providers.dart';
 import '../../widgets/loading_overlay.dart';
+import '../../widgets/accessibility_widgets.dart';
 
 /// Settings screen
 class SettingsScreen extends ConsumerStatefulWidget {
@@ -163,15 +164,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           // Data section
           _buildSectionHeader('Data'),
           ListTile(
-            leading: const Icon(Icons.download_outlined),
-            title: const Text('Export Data'),
-            subtitle: const Text('Download your application data'),
+            leading: const Icon(Icons.copy_all_outlined),
+            title: const Text('Templates'),
+            subtitle: const Text('Manage application templates'),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Export feature coming soon!')),
-              );
-            },
+            onTap: () => context.push('/templates'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.import_export_outlined),
+            title: const Text('Import & Export'),
+            subtitle: const Text('Backup and restore your data'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/import-export'),
           ),
           ListTile(
             leading: const Icon(Icons.sync_outlined),
@@ -185,6 +189,24 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 );
               },
             ),
+          ),
+          const Divider(),
+
+          // Accessibility section
+          _buildSectionHeader('Accessibility'),
+          ListTile(
+            leading: const Icon(Icons.accessibility_new_outlined),
+            title: const Text('Accessibility Settings'),
+            subtitle: const Text('Customize visual and motion settings'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => context.push('/accessibility'),
+          ),
+          ListTile(
+            leading: const Icon(Icons.keyboard_outlined),
+            title: const Text('Keyboard Shortcuts'),
+            subtitle: const Text('View available shortcuts'),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => _showKeyboardShortcuts(context),
           ),
           const Divider(),
 
@@ -375,6 +397,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           );
         },
       ),
+    );
+  }
+
+  void _showKeyboardShortcuts(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => const KeyboardShortcutsDialog(),
     );
   }
 }

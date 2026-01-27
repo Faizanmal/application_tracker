@@ -5,7 +5,6 @@ from .models import (
     UserStreak,
     UserPoints,
     PointsTransaction,
-    Leaderboard,
     Challenge,
     UserChallenge,
     CommunityPost,

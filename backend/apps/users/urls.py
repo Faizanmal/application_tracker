@@ -1,5 +1,4 @@
 from django.urls import path
-from rest_framework_simplejwt.views import TokenRefreshView
 from . import views
 
 app_name = 'users'
@@ -29,4 +28,10 @@ urlpatterns = [
     # Resumes
     path('resumes/', views.ResumeListCreateView.as_view(), name='resume_list'),
     path('resumes/<uuid:pk>/', views.ResumeDetailView.as_view(), name='resume_detail'),
+    
+    # Onboarding
+    path('tutorial-progress/', views.TutorialProgressViewSet.as_view(), name='tutorial_progress'),
+    path('tutorial-progress/<str:tutorial_type>/', views.TutorialProgressViewSet.as_view(), name='tutorial_progress_detail'),
+    path('help-tooltips/', views.HelpTooltipsView.as_view(), name='help_tooltips'),
+    path('generate-sample-data/', views.GenerateSampleDataView.as_view(), name='generate_sample_data'),
 ]

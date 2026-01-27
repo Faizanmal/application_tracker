@@ -185,3 +185,76 @@ class EmailVerificationToken(models.Model):
     
     def is_valid(self):
         return not self.used and self.expires_at > timezone.now()
+
+
+class TutorialProgress(models.Model):
+    """Track user progress through tutorials."""
+    
+    class TutorialType(models.TextChoices):
+        APPLICATION_TRACKING = 'application_tracking', 'Application Tracking'
+        ANALYTICS_DASHBOARD = 'analytics_dashboard', 'Analytics Dashboard'
+        CALENDAR_INTEGRATION = 'calendar_integration', 'Calendar Integration'
+        REMINDERS_SYSTEM = 'reminders_system', 'Reminders System'
+    
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='tutorial_progress')
+    tutorial_type = models.CharField(
+        max_length=30,
+        choices=TutorialType.choices
+    )
+    current_step = models.PositiveIntegerField(default=1)
+    completed_steps = models.JSONField(default=list)  # List of completed step IDs
+    is_completed = models.BooleanField(default=False)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ['user', 'tutorial_type']
+    
+    def __str__(self):
+        return f"{self.user.email} - {self.tutorial_type}"
+
+
+class HelpTooltip(models.Model):
+    """Contextual help tooltips."""
+    
+    class TooltipType(models.TextChoices):
+        APPLICATION_FORM = 'application_form', 'Application Form'
+        DASHBOARD = 'dashboard', 'Dashboard'
+        ANALYTICS = 'analytics', 'Analytics'
+        REMINDERS = 'reminders', 'Reminders'
+        SETTINGS = 'settings', 'Settings'
+    
+    identifier = models.CharField(max_length=100, unique=True)  # e.g., 'dashboard.stats'
+    tooltip_type = models.CharField(
+        max_length=20,
+        choices=TooltipType.choices
+    )
+    title = models.CharField(max_length=200)
+    content = models.TextField()
+    placement = models.CharField(max_length=20, default='top')  # top, bottom, left, right
+    is_active = models.BooleanField(default=True)
+    
+    # Targeting
+    show_to_new_users = models.BooleanField(default=True)
+    show_after_days = models.PositiveIntegerField(null=True, blank=True)  # Show after X days
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return self.identifier
+
+
+class SampleDataRequest(models.Model):
+    """Track requests for sample data generation."""
+    
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='sample_data_request')
+    is_completed = models.BooleanField(default=False)
+    applications_created = models.PositiveIntegerField(default=0)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self):
+        return f"Sample data for {self.user.email}"

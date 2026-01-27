@@ -6,7 +6,6 @@ from .models import (
     LearningResource,
     UserLearningProgress,
     LearningPath,
-    LearningPathResource,
     UserLearningPath,
     PortfolioProject,
     CareerGoal,

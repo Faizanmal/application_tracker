@@ -6,6 +6,7 @@ from .views import (
     TrackedEmailViewSet,
     CalendarIntegrationViewSet,
     CalendarEventViewSet,
+    UpcomingEventsView,
     LinkedInIntegrationViewSet,
     LinkedInOutreachViewSet,
     AutomatedFollowUpViewSet,
@@ -30,4 +31,5 @@ router.register(r'api-keys', APIKeyViewSet, basename='api-keys')
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('calendar/upcoming/', UpcomingEventsView.as_view(), name='upcoming-events'),
 ]

@@ -4,7 +4,7 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
-from django.db.models import Count, Avg
+from django.db.models import Count, Sum
 from django.utils import timezone
 
 from .models import (
@@ -268,7 +268,7 @@ class UserLearningProgressViewSet(viewsets.ModelViewSet):
             'completed': progress.filter(status='completed').count(),
             'in_progress': progress.filter(status='in_progress').count(),
             'total_time_spent': progress.aggregate(
-                total=models.Sum('total_time_spent_minutes')
+                total=Sum('total_time_spent_minutes')
             )['total'] or 0,
         })
 

@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'quick_add.dart';
+import 'offline_widgets.dart';
+import '../../data/services/sync_service.dart';
 
 /// Main scaffold with bottom navigation
-class MainScaffold extends StatelessWidget {
+class MainScaffold extends ConsumerWidget {
   final Widget child;
 
   const MainScaffold({
@@ -41,11 +46,28 @@ class MainScaffold extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final selectedIndex = _calculateSelectedIndex(context);
+    final syncState = ref.watch(syncProvider);
 
     return Scaffold(
-      body: child,
+      body: SyncableRefreshIndicator(
+        onRefresh: () => ref.read(syncProvider.notifier).sync(),
+        child: Stack(
+          children: [
+            child,
+            // Sync status indicator
+            if (syncState.pendingCount > 0)
+              Positioned(
+                bottom: 16,
+                left: 16,
+                child: SyncStatusBadge(
+                  onTap: () => _showSyncStatus(context, ref),
+                ),
+              ),
+          ],
+        ),
+      ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: selectedIndex,
         onDestinationSelected: (index) => _onItemTapped(context, index),
@@ -76,6 +98,34 @@ class MainScaffold extends StatelessWidget {
             label: 'Settings',
           ),
         ],
+      ),
+      floatingActionButton: const QuickAddFAB(),
+    );
+  }
+
+  void _showSyncStatus(BuildContext context, WidgetRef ref) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SyncStatusView(),
+            const SizedBox(height: 16),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  ref.read(syncProvider.notifier).sync();
+                  Navigator.pop(context);
+                },
+                icon: const Icon(Icons.sync),
+                label: const Text('Sync Now'),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
